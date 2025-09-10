@@ -103,24 +103,21 @@ struct HomeView: View {
 
                         // Grid
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())],
-                                  spacing: 20) {
+                                  spacing: 10) {
                             ActionCardView(color: green1, systemImage: "cloud.sun.fill",
                                            title: "Anticipa", subtitle: "Prevé el clima")
                             ActionCardView(color: brown1, systemImage: "camera.fill",
                                            title: "Detecta", subtitle: "Prevención temprana")
                             ActionCardView(color: brown2, systemImage: "bandage.fill",
                                            title: "Infórmate", subtitle: "Cuida tu cultivo")
-                            ActionCardView(color: green2, systemImage: "leaf.fill",
-                                           title: "Consulta", subtitle: "Tus registros siempre")
+                            NavigationLink {
+                                HistoryView()
+                            } label: {
+                                ActionCardView(color: green2, systemImage: "leaf.fill", title: "Consulta", subtitle: "Tus registros siempre")}
                         }
-                        .padding(.bottom, 32)
-
-                        Color.clear.frame(height: 12)
+                            .buttonStyle(.plain)
                     }
                     .padding(.horizontal)
-                }
-                .safeAreaInset(edge: .bottom) {
-                    Color.clear.frame(height: 140)
                 }
                 .navigationTitle("")
                 .toolbar(.hidden, for: .navigationBar)
