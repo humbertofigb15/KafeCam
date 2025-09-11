@@ -1,14 +1,14 @@
 //
-//  KafeCamApp.swift
-//  KafeCam
+//  RegisterApp.swift
+//  Register
 //
-//  Created by Grecia Saucedo on 06/09/25.
+//  Created by Guillermo Lira on 10/09/25.
 //
 
 import SwiftUI
 
-@main
-struct KafeCamApp: App {
+
+struct RegisterApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
