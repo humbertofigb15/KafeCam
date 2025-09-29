@@ -11,7 +11,8 @@ struct DiseaseRowView: View {
     let disease: DiseaseModel
     
     var body: some View {
-        HStack(spacing: 12) {
+        // The HStack is now the top-level container for this view's content.
+        VStack(spacing: 12) {
             Image(disease.imageName)
                 .resizable()
                 .scaledToFill()
@@ -23,18 +24,17 @@ struct DiseaseRowView: View {
                 Text(disease.name)
                     .font(.headline)
                     .lineLimit(1)
-                
-                if disease.scientificName != nil {
-                    Text((disease.scientificName)!)
+                 
+                // Use "if let" to safely unwrap the optional value.
+                if let scientificName = disease.scientificName {
+                    Text(scientificName)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
             }
             
-            Spacer()
-            Image(systemName: "chevron.right")
-                .foregroundStyle(.tertiary)
-
+            Image(systemName: "book.circle.fill")
+                .foregroundStyle(.secondary)
         }
         .padding(12)
         .background(Color(.systemBackground))
@@ -44,7 +44,17 @@ struct DiseaseRowView: View {
 }
 
 #Preview {
-    ForEach(sampleDiseases) { item in
-        DiseaseRowView(disease: DiseaseModel(name: item.name, scientificName: item.scientificName, description: item.description, impact: item.impact, prevention: item.prevention, imageName: item.imageName))
+    let columns = [
+        GridItem(.flexible()),
+        GridItem(.flexible())
+    ]
+    
+    ScrollView {
+        LazyVGrid(columns: columns, spacing: 16) {
+            ForEach(sampleDiseases) { item in
+                DiseaseRowView(disease: DiseaseModel(name: item.name, scientificName: item.scientificName, description: item.description, impact: item.impact, prevention: item.prevention, imageName: item.imageName))
+            }
+        }
+        .padding()
     }
 }

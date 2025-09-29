@@ -108,8 +108,12 @@ struct HomeView: View {
                                            title: "Anticipa", subtitle: "Prevé el clima")
                             ActionCardView(color: brown1, systemImage: "camera.fill",
                                            title: "Detecta", subtitle: "Prevención temprana")
-                            ActionCardView(color: brown2, systemImage: "bandage.fill",
-                                           title: "Infórmate", subtitle: "Cuida tu cultivo")
+                            NavigationLink {
+                                DiseaseView()
+                            } label: {
+                                ActionCardView(color: brown2, systemImage: "bandage.fill",
+                                               title: "Infórmate", subtitle: "Cuida tu cultivo")
+                            }
                             NavigationLink {
                                 HistoryView()
                             } label: {
