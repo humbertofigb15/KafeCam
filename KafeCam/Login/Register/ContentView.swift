@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var session = SessionViewModel(auth: LocalAuthService())
+    @StateObject private var session = SessionViewModel(auth: SupabaseCodeAuthService())
 
     var body: some View {
         if session.isLoggedIn {

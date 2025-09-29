@@ -6,6 +6,15 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E5A010A92E8A782F00A93A15 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = E5A010A82E8A782F00A93A15 /* Auth */; };
+		E5A010AB2E8A782F00A93A15 /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = E5A010AA2E8A782F00A93A15 /* Functions */; };
+		E5A010AD2E8A782F00A93A15 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = E5A010AC2E8A782F00A93A15 /* PostgREST */; };
+		E5A010AF2E8A782F00A93A15 /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = E5A010AE2E8A782F00A93A15 /* Realtime */; };
+		E5A010B12E8A782F00A93A15 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = E5A010B02E8A782F00A93A15 /* Storage */; };
+		E5A010B32E8A782F00A93A15 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = E5A010B22E8A782F00A93A15 /* Supabase */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		144DD9242E6CDF5A00CCE4F4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -30,9 +39,22 @@
 		14922EF42E6FB7C8005E3413 /* KafeCam.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KafeCam.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E5A010B62E8A7CE000A93A15 /* Exceptions for "KafeCam" folder in "KafeCam" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Configuration/SupabaseConfig.sample.swift,
+			);
+			target = 144DD9142E6CDF5700CCE4F4 /* KafeCam */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		144DD9172E6CDF5700CCE4F4 /* KafeCam */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E5A010B62E8A7CE000A93A15 /* Exceptions for "KafeCam" folder in "KafeCam" target */,
+			);
 			path = KafeCam;
 			sourceTree = "<group>";
 		};
@@ -53,6 +75,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E5A010AD2E8A782F00A93A15 /* PostgREST in Frameworks */,
+				E5A010AB2E8A782F00A93A15 /* Functions in Frameworks */,
+				E5A010B32E8A782F00A93A15 /* Supabase in Frameworks */,
+				E5A010A92E8A782F00A93A15 /* Auth in Frameworks */,
+				E5A010B12E8A782F00A93A15 /* Storage in Frameworks */,
+				E5A010AF2E8A782F00A93A15 /* Realtime in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -114,6 +142,12 @@
 			);
 			name = KafeCam;
 			packageProductDependencies = (
+				E5A010A82E8A782F00A93A15 /* Auth */,
+				E5A010AA2E8A782F00A93A15 /* Functions */,
+				E5A010AC2E8A782F00A93A15 /* PostgREST */,
+				E5A010AE2E8A782F00A93A15 /* Realtime */,
+				E5A010B02E8A782F00A93A15 /* Storage */,
+				E5A010B22E8A782F00A93A15 /* Supabase */,
 			);
 			productName = KafeCam;
 			productReference = 144DD9152E6CDF5700CCE4F4 /* KafeCam.app */;
@@ -197,6 +231,9 @@
 			);
 			mainGroup = 144DD90C2E6CDF5700CCE4F4;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E5A010A72E8A782F00A93A15 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 144DD9162E6CDF5700CCE4F4 /* Products */;
 			projectDirPath = "";
@@ -395,7 +432,7 @@
 				CODE_SIGN_ENTITLEMENTS = KafeCam/KafeCam.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 5QU7DX383G;
+				DEVELOPMENT_TEAM = CLE629MGG8;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -434,7 +471,7 @@
 				CODE_SIGN_ENTITLEMENTS = KafeCam/KafeCam.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 5QU7DX383G;
+				DEVELOPMENT_TEAM = CLE629MGG8;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -595,6 +632,50 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E5A010A72E8A782F00A93A15 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase-community/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E5A010A82E8A782F00A93A15 /* Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E5A010A72E8A782F00A93A15 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
+		};
+		E5A010AA2E8A782F00A93A15 /* Functions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E5A010A72E8A782F00A93A15 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Functions;
+		};
+		E5A010AC2E8A782F00A93A15 /* PostgREST */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E5A010A72E8A782F00A93A15 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = PostgREST;
+		};
+		E5A010AE2E8A782F00A93A15 /* Realtime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E5A010A72E8A782F00A93A15 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Realtime;
+		};
+		E5A010B02E8A782F00A93A15 /* Storage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E5A010A72E8A782F00A93A15 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Storage;
+		};
+		E5A010B22E8A782F00A93A15 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E5A010A72E8A782F00A93A15 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 144DD90D2E6CDF5700CCE4F4 /* Project object */;
 }
