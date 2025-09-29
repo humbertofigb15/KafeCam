@@ -1,15 +1,11 @@
-# Local configuration files (do not commit secrets)
-KafeCam/Configuration/SupabaseConfig.swift
-
 # Xcode build artifacts
 DerivedData/
 build/
 
-# SwiftPM
-.swiftpm/
-Packages/
-Package.resolved
-
 # User data
 *.xcuserstate
 *.xcuserdata/
+
+# SwiftPM working dirs (keep resolved file tracked)
+.swiftpm/
+Packages/
