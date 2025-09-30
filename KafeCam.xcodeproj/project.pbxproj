@@ -39,22 +39,9 @@
 		14922EF42E6FB7C8005E3413 /* KafeCam.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KafeCam.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		E5A010B62E8A7CE000A93A15 /* Exceptions for "KafeCam" folder in "KafeCam" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Configuration/SupabaseConfig.sample.swift,
-			);
-			target = 144DD9142E6CDF5700CCE4F4 /* KafeCam */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		144DD9172E6CDF5700CCE4F4 /* KafeCam */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				E5A010B62E8A7CE000A93A15 /* Exceptions for "KafeCam" folder in "KafeCam" target */,
-			);
 			path = KafeCam;
 			sourceTree = "<group>";
 		};

@@ -15,10 +15,27 @@ final class SupabaseCodeAuthService: AuthService {
 	}
 	
 	func register(name: String, email: String?, phone: String, password: String, organization: String) throws {
-		// Treat `phone` as a 10-digit code. Minimal validation: exactly 10 digits.
 		guard Self.validateCode(phone) else { throw AuthError.invalidPhone }
 		_ = try Self.blocking {
-			try await SupaAuthService.signInOrSignUp(code: phone, password: password)
+			let _ = try await SupaAuthService.signUpThenSignIn(code: phone, password: password, metaName: name, metaOrg: organization, metaPhone: phone, metaEmail: (email?.isEmpty == true ? nil : email))
+			// Best-effort profile sync; do not block signup on secondary failures
+			do {
+				let profiles = ProfilesRepository()
+				let _ = try await profiles.upsertCurrentUserProfile(
+					name: name,
+					email: (email?.isEmpty == true ? nil : email),
+					phone: phone,
+					organization: organization
+				)
+				let me = try await profiles.getCurrent()
+				if let full = me.name?.trimmingCharacters(in: .whitespacesAndNewlines), !full.isEmpty {
+					let first = full.split(whereSeparator: { $0.isWhitespace }).first.map(String.init)
+					if let first, !first.isEmpty { UserDefaults.standard.set(first, forKey: "displayName") }
+				}
+			} catch {
+				// Log but don't fail registration
+				print("Profile sync after signup failed: \(error)")
+			}
 		}
 		currentPhone = phone
 	}
@@ -26,29 +43,35 @@ final class SupabaseCodeAuthService: AuthService {
 	func login(phone: String, password: String) throws {
 		guard Self.validateCode(phone) else { throw AuthError.userNotFoundOrBadPassword }
 		_ = try Self.blocking {
-			try await SupaAuthService.signInOrSignUp(code: phone, password: password)
+			let _ = try await SupaAuthService.signInOrSignUp(code: phone, password: password)
+			// Best-effort display name refresh
+			if let me = try? await ProfilesRepository().getCurrent(), let full = me.name?.trimmingCharacters(in: .whitespacesAndNewlines), !full.isEmpty {
+				let first = full.split(whereSeparator: { $0.isWhitespace }).first.map(String.init)
+				if let first, !first.isEmpty { UserDefaults.standard.set(first, forKey: "displayName") }
+			}
 		}
 		currentPhone = phone
 	}
 	
 	func logout() {
-		_ = try? Self.blocking {
-			try await SupaClient.shared.auth.signOut()
-		}
+		_ = try? Self.blocking { try await SupaAuthService.signOut() }
 		currentPhone = nil
 	}
 	
 	// MARK: - Helpers
 	private static func blocking<T>(_ work: @escaping () async throws -> T) throws -> T {
+		var output: Result<T, Error>? = nil
 		let semaphore = DispatchSemaphore(value: 0)
-		var result: Result<T, Error>!
 		Task {
-			do { result = .success(try await work()) }
-			catch { result = .failure(error) }
+			do { output = .success(try await work()) }
+			catch { output = .failure(error) }
 			semaphore.signal()
 		}
+		while output == nil {
+			RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.01))
+		}
 		semaphore.wait()
-		return try result.get()
+		return try output!.get()
 	}
 	
 	private static func validateCode(_ code: String) -> Bool {

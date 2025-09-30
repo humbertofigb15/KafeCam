@@ -31,35 +31,58 @@ enum SupaAuthService {
 		)
 	}
 	
-	/// Map a 10-digit user code to an email used by Supabase email auth.
-	static func email(for code: String) -> String {
-		"\(code)@kafe.local"
-	}
-	
-	/// Sign in the user derived from the 10-digit code, or create the account if missing.
 	@discardableResult
 	static func signInOrSignUp(code: String, password: String) async throws -> UUID {
-		let emailAddr = email(for: code)
+		let emailAddr = "\(code)@kafe.local"
 		do {
 			let session = try await SupaClient.shared.auth.signIn(email: emailAddr, password: password)
 			return session.user.id
 		} catch {
-			// Try sign up then sign in. If email confirmation is enabled, this may require dashboard changes.
 			_ = try await SupaClient.shared.auth.signUp(email: emailAddr, password: password)
 			let session = try await SupaClient.shared.auth.signIn(email: emailAddr, password: password)
 			return session.user.id
 		}
 	}
 	
-	/// Current signed-in user id. Assumes you've called a sign-in method before use.
+	@discardableResult
+	static func signUpThenSignIn(code: String, password: String, metaName: String?, metaOrg: String?, metaPhone: String?, metaEmail: String?) async throws -> UUID {
+		let emailAddr = "\(code)@kafe.local"
+		var metadata: [String: AnyJSON] = [:]
+		if let metaName { metadata["name"] = .string(metaName) }
+		if let metaOrg { metadata["organization"] = .string(metaOrg) }
+		if let metaPhone { metadata["phone"] = .string(metaPhone) }
+		if let metaEmail, !metaEmail.isEmpty { metadata["email"] = .string(metaEmail) }
+		do {
+			_ = try await SupaClient.shared.auth.signUp(
+				email: emailAddr,
+				password: password,
+				data: metadata.isEmpty ? nil : metadata
+			)
+		} catch {
+			let msg = String(describing: error).lowercased()
+			if msg.contains("already registered") || msg.contains("user already") {
+				throw AuthError.duplicatePhone
+			}
+			throw error
+		}
+		let session = try await SupaClient.shared.auth.signIn(email: emailAddr, password: password)
+		return session.user.id
+	}
+	
 	static func currentUserId() async throws -> UUID {
 		try await SupaClient.shared.auth.session.user.id
 	}
+	
+	static func signOut() async throws {
+		try await SupaClient.shared.auth.signOut()
+	}
 	#else
 	static func signInDev() async throws { }
-	static func email(for code: String) -> String { code }
 	@discardableResult
 	static func signInOrSignUp(code: String, password: String) async throws -> UUID { UUID() }
+	@discardableResult
+	static func signUpThenSignIn(code: String, password: String, metaName: String?, metaOrg: String?, metaPhone: String?, metaEmail: String?) async throws -> UUID { UUID() }
 	static func currentUserId() async throws -> UUID { UUID() }
+	static func signOut() async throws { }
 	#endif
 }

@@ -8,7 +8,8 @@ import SwiftUI
 import UIKit
 
 struct HomeView: View {
-    @AppStorage("displayName") private var displayName: String = "Grecia"
+    @AppStorage("displayName") private var displayName: String = ""
+    @AppStorage("profileInitials") private var profileInitials: String = ""
     @StateObject private var vm = HomeViewModel()
     @State private var query: String = ""
 
@@ -31,7 +32,8 @@ struct HomeView: View {
                         Header(displayName: displayName,
                                greetingName: vm.greetingName,
                                accent: vm.accentColor,
-                               dark: vm.darkColor)
+                               dark: vm.darkColor,
+                               initials: profileInitials)
 
                         // Search bar
                         SearchBar(text: $query)
@@ -69,16 +71,37 @@ struct HomeView: View {
                 .navigationTitle("")
                 .toolbar(.hidden, for: .navigationBar)
                 .onAppear { vm.refresh() }
+                .task { await syncProfileToAppStorage() }
             }
             .tabItem { Label("Inicio", systemImage: "house.fill") }
 
-            Text("Perfil del usuario")
+            ProfileTabView()
                 .tabItem { Label("Perfil", systemImage: "person.fill") }
 
             Text("Favoritos")
                 .tabItem { Label("Favoritos", systemImage: "heart.fill") }
         }
         .tint(vm.accentColor)
+    }
+
+    private func syncProfileToAppStorage() async {
+        do {
+            let p = try await ProfilesRepository().getCurrent()
+            let first = (p.name ?? "").split(whereSeparator: { $0.isWhitespace }).first.map(String.init) ?? (p.name ?? "")
+            UserDefaults.standard.set(first, forKey: "displayName")
+            let initials = Self.makeInitials(from: p.name)
+            UserDefaults.standard.set(initials, forKey: "profileInitials")
+        } catch {
+            // no-op; keep existing values
+        }
+    }
+
+    private static func makeInitials(from name: String?) -> String {
+        guard let name = name?.trimmingCharacters(in: .whitespacesAndNewlines), !name.isEmpty else { return "" }
+        let parts = name.split(separator: " ")
+        let first = parts.first?.first.map(String.init) ?? ""
+        let second = parts.dropFirst().first?.first.map(String.init) ?? ""
+        return (first + second).uppercased()
     }
 }
 
@@ -89,6 +112,7 @@ private struct Header: View {
     let greetingName: String
     let accent: Color
     let dark: Color
+    let initials: String
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
@@ -104,15 +128,24 @@ private struct Header: View {
                     .fontWeight(.medium)
             }
             Spacer(minLength: 0)
-            Image("Profile")
-                .resizable()
-                .scaledToFill()
-                .frame(width: 40, height: 40)
-                .clipShape(Circle())
-                .overlay(Circle().stroke(.white, lineWidth: 1))
-                .shadow(radius: 3)
+            AvatarCircle(initials: initials)
         }
         .padding(.top, 8)
+    }
+}
+
+private struct AvatarCircle: View {
+    let initials: String
+    var body: some View {
+        ZStack {
+            Circle().fill(Color(.systemGray5))
+            Text(initials.isEmpty ? "" : initials)
+                .font(.headline)
+                .foregroundStyle(.primary)
+        }
+        .frame(width: 40, height: 40)
+        .overlay(Circle().stroke(.white, lineWidth: 1))
+        .shadow(radius: 3)
     }
 }
 

@@ -14,6 +14,7 @@ final class LoginViewModel: ObservableObject {
     @Published var phoneError: String? = nil
     @Published var passwordError: String? = nil   // generic error shown under password
     @Published var isLoading = false
+    @Published var signupJustSucceeded = false
 
     let auth: AuthService
     let session: SessionViewModel
@@ -21,6 +22,11 @@ final class LoginViewModel: ObservableObject {
     init(auth: AuthService, session: SessionViewModel) {
         self.auth = auth
         self.session = session
+        // one-time flag to inform user after returning from signup
+        if UserDefaults.standard.bool(forKey: "signupSuccess") {
+            self.signupJustSucceeded = true
+            UserDefaults.standard.removeObject(forKey: "signupSuccess")
+        }
     }
 
     func submit() {

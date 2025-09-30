@@ -9,6 +9,7 @@ import SwiftUI
 
 struct HistoryView: View {
     private let accentColor = Color(red: 134/255.0, green: 155/255.0, blue: 116/255.0)
+    @StateObject private var vm = GalleryViewModel()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -17,57 +18,51 @@ struct HistoryView: View {
                 .foregroundColor(accentColor)
                 .padding(.horizontal)
 
-            List(sampleHistory) { rec in
-                // Navegación directa (sin value:, sin navigationDestination)
-                NavigationLink {
-                    HistoryDetailMock(record: rec, accentColor: accentColor)
-                } label: {
-                    HistoryCard(record: rec)
-                        .contentShape(Rectangle())
+            if vm.rows.isEmpty && !vm.isLoading {
+                ContentUnavailableView(
+                    "Sin fotos",
+                    systemImage: "photo.on.rectangle.angled",
+                    description: Text("Aún no guardas fotos. Captura una en Detecta y guárdala aquí."))
+            } else {
+                List(vm.rows) { rec in
+                    NavigationLink {
+                        HistoryDetailPlaceholder(row: rec, accentColor: accentColor)
+                    } label: {
+                        HistoryRowPlaceholder(row: rec)
+                            .contentShape(Rectangle())
+                    }
+                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 12, trailing: 16))
+                    .listRowSeparator(.hidden)
                 }
-                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 12, trailing: 16))
-                .listRowSeparator(.hidden)
+                .listStyle(.plain)
             }
-            .listStyle(.plain)
         }
         .navigationTitle("Historial")
         .navigationBarTitleDisplayMode(.inline)
         .tint(accentColor)
+        .overlay { if vm.isLoading { ProgressView() } }
+        .task { await vm.load() }
     }
 }
 
-// Tarjeta
-struct HistoryCard: View {
-    let record: PhotoRecord
-
+struct HistoryRowPlaceholder: View {
+    let row: CaptureRow
     var body: some View {
         HStack(spacing: 12) {
-            Image(record.imageName)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 72, height: 72)
-                .cornerRadius(14)
-                .background(Color(.systemGray6))
+            ZStack {
+                RoundedRectangle(cornerRadius: 12).fill(Color(.systemGray6))
+                Image(systemName: "leaf.fill").foregroundStyle(.secondary)
+            }
+            .frame(width: 72, height: 72)
 
             VStack(alignment: .leading, spacing: 6) {
-                Text(record.disease)
-                    .font(.headline)
-                    .lineLimit(1)
-
-                if let location = record.location {
-                    Text(location)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-
-                Text(record.date)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Text(row.title).font(.headline).lineLimit(1)
+                Text(row.subtitle).font(.subheadline).foregroundStyle(.secondary)
+                Text(row.dateText).font(.caption).foregroundStyle(.secondary)
             }
 
             Spacer()
-            Image(systemName: "chevron.right")
-                .foregroundStyle(.tertiary)
+            Image(systemName: "chevron.right").foregroundStyle(.tertiary)
         }
         .padding(12)
         .background(Color(.systemBackground))
@@ -76,33 +71,24 @@ struct HistoryCard: View {
     }
 }
 
-// Detalle
-struct HistoryDetailMock: View {
-    let record: PhotoRecord
+struct HistoryDetailPlaceholder: View {
+    let row: CaptureRow
     var accentColor: Color
-
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Image(record.imageName)
-                    .resizable()
-                    .scaledToFit()
-                    .cornerRadius(16)
+                ZStack {
+                    RoundedRectangle(cornerRadius: 16).fill(Color(.systemGray6))
+                    Image(systemName: "photo").font(.largeTitle).foregroundStyle(.secondary)
+                }
+                .frame(height: 260)
 
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(record.disease)
+                    Text(row.title)
                         .font(.largeTitle.bold())
                         .foregroundColor(accentColor)
-
-                    HStack(spacing: 8) {
-                        Text(record.date)
-                        if let location = record.location { Text("• \(location)") }
-                    }
-                    .foregroundStyle(.secondary)
-
-                    Text("Aquí podrían mostrarse notas o recomendaciones sobre la enfermedad.")
-                        .foregroundStyle(.secondary)
-                        .padding(.top, 4)
+                    Text(row.subtitle).foregroundStyle(.secondary)
+                    Text(row.dateText).font(.caption).foregroundStyle(.secondary)
                 }
             }
             .padding()

@@ -82,5 +82,10 @@ struct LoginView: View {
                 RegisterView(vm: RegisterViewModel(auth: vm.auth, session: vm.session))
             }
         }
+        .alert("Account created", isPresented: $vm.signupJustSucceeded) {
+            Button("OK") { vm.signupJustSucceeded = false }
+        } message: {
+            Text("Sign in using your 10-digit code and password.")
+        }
     }
 }

@@ -50,7 +50,8 @@ final class RegisterViewModel: ObservableObject {
         do {
             try auth.register(name: name, email: email.isEmpty ? nil : email,
                               phone: phone, password: password, organization: organization)
-            session.isLoggedIn = true          // <- CAMBIO CLAVE
+            // Do NOT auto-login; signal success so Login can show a confirmation
+            UserDefaults.standard.set(true, forKey: "signupSuccess")
             return true
         } catch let err as AuthError {
             switch err {
