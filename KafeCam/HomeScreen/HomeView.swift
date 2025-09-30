@@ -151,8 +151,21 @@ private struct ActionsGrid: View {
             ActionCardView(color: green1, systemImage: "cloud.sun.fill",
                            title: "Anticipa", subtitle: "Prevé el clima")
 
-            ActionCardView(color: brown1, systemImage: "camera.fill",
-                           title: "Detecta", subtitle: "Prevención temprana")
+            // DETECTA
+            NavigationLink {
+                DetectaView()
+            } label: {
+                ActionCardView(color: brown1,
+                               systemImage: "camera.fill",
+                               title: "Detecta",
+                               subtitle: "Prevención temprana")
+                    .contentShape(Rectangle())
+            }
+            .simultaneousGesture(TapGesture().onEnded {
+                // esto asegura que el teclado se cierre si estaba abierto
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                                to: nil, from: nil, for: nil)
+            })
 
             ActionCardView(color: brown2, systemImage: "bandage.fill",
                            title: "Infórmate", subtitle: "Cuida tu cultivo")
