@@ -1,20 +1,22 @@
 //
-//  DiseaseView.swift
-//  KafeCam
+//  DiseaseView.swift
+//  KafeCam
 //
-//  Created by Bruno Rivera on 11/09/25.
+//  Created by Bruno Rivera on 11/09/25.
 //
 
 import SwiftUI
 
 struct DiseaseView: View {
+    let diseaseList: [DiseaseModel]
+    
     private let columns = [
         GridItem(.flexible()),
         GridItem(.flexible())
     ]
-    
+
     private let accentColor = Color(red: 88/255, green: 129/255, blue: 87/255)
-    private let darkColor = Color(red: 82/255,  green: 76/255,  blue: 41/255)
+    private let darkColor = Color(red: 82/255, green: 76/255, blue: 41/255)
     
     var body: some View {
         NavigationStack {
@@ -26,8 +28,10 @@ struct DiseaseView: View {
                 
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 16) {
-                        ForEach(sampleDiseases) { item in
-                            NavigationLink(value: item) {
+                        ForEach(diseaseList) { item in
+                            NavigationLink {
+                                DiseaseDetailView(disease: item)
+                            } label: {
                                 DiseaseRowView(disease: item)
                             }
                             .buttonStyle(.plain)
@@ -38,13 +42,10 @@ struct DiseaseView: View {
             }
             .navigationTitle("Enfermedades")
             .navigationBarTitleDisplayMode(.inline)
-            .navigationDestination(for: DiseaseModel.self) { item in
-                DiseaseDetailView(disease: item)
-            }
         }
     }
 }
 
 #Preview {
-    DiseaseView()
+    DiseaseView(diseaseList: sampleDiseases)
 }

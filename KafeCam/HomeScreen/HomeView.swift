@@ -166,9 +166,13 @@ private struct ActionsGrid: View {
                 UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
                                                 to: nil, from: nil, for: nil)
             })
-
-            ActionCardView(color: brown2, systemImage: "bandage.fill",
-                           title: "Infórmate", subtitle: "Cuida tu cultivo")
+            
+            NavigationLink {
+                DiseaseView(diseaseList: sampleDiseases)
+            } label: {
+                ActionCardView(color: brown2, systemImage: "bandage.fill",
+                                     title: "Infórmate", subtitle: "Cuida tu cultivo")
+            }
 
             // CONSULTA (usa el NavigationStack ya existente)
             NavigationLink {
@@ -185,4 +189,8 @@ private struct ActionsGrid: View {
         }
         .buttonStyle(.plain)
     }
+}
+
+#Preview {
+    HomeView()
 }

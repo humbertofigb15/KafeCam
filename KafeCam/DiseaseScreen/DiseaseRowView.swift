@@ -11,7 +11,6 @@ struct DiseaseRowView: View {
     let disease: DiseaseModel
     
     var body: some View {
-        // The HStack is now the top-level container for this view's content.
         VStack(spacing: 12) {
             Image(disease.imageName)
                 .resizable()
@@ -25,7 +24,6 @@ struct DiseaseRowView: View {
                     .font(.headline)
                     .lineLimit(1)
                  
-                // Use "if let" to safely unwrap the optional value.
                 if let scientificName = disease.scientificName {
                     Text(scientificName)
                         .foregroundStyle(.secondary)
