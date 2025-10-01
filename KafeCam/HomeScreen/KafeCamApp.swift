@@ -2,16 +2,17 @@
 //  KafeCamApp.swift
 //  KafeCam
 //
-//  Created by Grecia Saucedo on 06/09/25.
-//
 
 import SwiftUI
 
 @main
 struct KafeCamApp: App {
+    @StateObject private var historyStore = HistoryStore()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            HomeView() 
+                .environmentObject(historyStore)
         }
     }
 }

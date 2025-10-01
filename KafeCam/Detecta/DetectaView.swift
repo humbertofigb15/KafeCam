@@ -2,59 +2,75 @@
 //  DetectaView.swift
 //  KafeCam
 //
-//  Created by Humberto Figueroa on 10/09/25.
-//
 
 import SwiftUI
 import CoreML
 import Vision
 
 struct DetectaView: View {
+    @EnvironmentObject var historyStore: HistoryStore
     @State private var prediction: String = "Apunta la cámara a una hoja ☕️🍃"
     @State private var capturedImage: UIImage?
-    @State private var showCamera = true     // 👈 arranca directo con cámara
+    @State private var showCamera = true
     @State private var takePhotoTrigger = false
+    @State private var showSaveOptions = false
 
     var body: some View {
         VStack(spacing: 20) {
-            
             if let image = capturedImage {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFit()
                     .frame(maxHeight: 250)
                     .cornerRadius(12)
+
+                Text(prediction)
+                    .font(.title2)
+                    .padding()
+
+                if showSaveOptions {
+                    HStack(spacing: 40) {
+                        Button("❌ Rechazar") {
+                            capturedImage = nil
+                            prediction = "Apunta la cámara a una hoja ☕️🍃"
+                            showSaveOptions = false
+                            showCamera = true
+                        }
+                        .foregroundColor(.red)
+
+                        Button("✅ Aceptar") {
+                            if let img = capturedImage {
+                                historyStore.add(image: img, prediction: prediction)
+                                showSaveOptions = false
+                            }
+                        }
+                        .foregroundColor(.green)
+                    }
+                }
+            } else {
+                Text(prediction)
+                    .font(.title2)
+                    .padding()
             }
-            
-            Text(prediction)
-                .font(.title2)
-                .padding()
         }
         .padding()
         .fullScreenCover(isPresented: $showCamera) {
             ZStack {
-                // 👁 Vista de la cámara
                 CameraPreview(takePhotoTrigger: $takePhotoTrigger) { image in
                     self.capturedImage = image
                     self.classify(image: image)
-                    self.showCamera = false   // se cierra cámara tras tomar la foto
+                    self.showCamera = false
+                    self.showSaveOptions = true
                 }
                 .ignoresSafeArea()
-                
-                // Botón flotante de captura
+
                 VStack {
                     Spacer()
-                    Button(action: {
-                        takePhotoTrigger = true
-                    }) {
+                    Button(action: { takePhotoTrigger = true }) {
                         Circle()
                             .fill(Color.white)
                             .frame(width: 80, height: 80)
-                            .overlay(
-                                Circle()
-                                    .stroke(Color.black, lineWidth: 2)
-                                    .frame(width: 90, height: 90)
-                            )
+                            .overlay(Circle().stroke(Color.black, lineWidth: 2))
                     }
                     .padding(.bottom, 40)
                 }
@@ -98,5 +114,6 @@ struct DetectaView: View {
 
 #Preview {
     DetectaView()
+        .environmentObject(HistoryStore())
 }
 
