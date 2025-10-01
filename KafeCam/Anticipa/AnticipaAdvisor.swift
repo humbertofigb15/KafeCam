@@ -1,3 +1,11 @@
+//
+//  AnticipaAdvisor.swift
+//  KafeCam
+//
+//  Created by Guillermo Lira on 30/09/25.
+//
+
+
 import Foundation
 
 // reglas simples

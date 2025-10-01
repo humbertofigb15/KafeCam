@@ -13,14 +13,12 @@ struct HomeView: View {
     @StateObject private var vm = HomeViewModel()
     @State private var query: String = ""
 
-    // Rompemos la cadena para ayudar al type-checker
+    // filtro simple
     private var filtered: [String] {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return [] }
-        let base = listaEnfermedades
-        let hits = base.filter { $0.localizedCaseInsensitiveContains(trimmed) }
-        let firstTen = Array(hits.prefix(10))
-        return firstTen.map { String($0) }
+        let hits = listaEnfermedades.filter { $0.localizedCaseInsensitiveContains(trimmed) }
+        return Array(hits.prefix(10)).map { String($0) }
     }
 
     var body: some View {
@@ -35,13 +33,13 @@ struct HomeView: View {
                                dark: vm.darkColor,
                                initials: profileInitials)
 
-                        // Search bar
+                        // buscador
                         SearchBar(text: $query)
 
-                        // Coincidencias
+                        // coincidencias
                         MatchesList(filtered: filtered, onTap: { query = $0 })
 
-                        // Alertas
+                        // alertas
                         if !vm.alerts.isEmpty {
                             Text("Alertas")
                                 .font(.headline)
@@ -61,12 +59,12 @@ struct HomeView: View {
                             .foregroundColor(vm.accentColor)
                             .fontWeight(.semibold)
 
-                        // Grid de acciones
+                        // grid de acciones
                         ActionsGrid()
                     }
                     .padding(.horizontal)
                 }
-                // FIX teclado/conflictos de constraints
+                // teclado
                 .scrollDismissesKeyboard(.immediately)
                 .navigationTitle("")
                 .toolbar(.hidden, for: .navigationBar)
@@ -84,6 +82,7 @@ struct HomeView: View {
         .tint(vm.accentColor)
     }
 
+    // sincroniza nombre e iniciales
     private func syncProfileToAppStorage() async {
         do {
             let p = try await ProfilesRepository().getCurrent()
@@ -92,7 +91,7 @@ struct HomeView: View {
             let initials = Self.makeInitials(from: p.name)
             UserDefaults.standard.set(initials, forKey: "profileInitials")
         } catch {
-            // no-op; keep existing values
+            // no-op
         }
     }
 
@@ -105,7 +104,7 @@ struct HomeView: View {
     }
 }
 
-// MARK: - Subvistas pequeñas (ayudan al type-checker)
+// MARK: - Subvistas
 
 private struct Header: View {
     let displayName: String
@@ -181,8 +180,19 @@ private struct MatchesList: View {
 private struct ActionsGrid: View {
     var body: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-            ActionCardView(color: green1, systemImage: "cloud.sun.fill",
-                           title: "Anticipa", subtitle: "Prevé el clima")
+
+            // ANTICIPA
+            NavigationLink {
+                AnticipaView()
+            } label: {
+                ActionCardView(color: green1, systemImage: "cloud.sun.fill",
+                               title: "Anticipa", subtitle: "Prevé el clima")
+                    .contentShape(Rectangle())
+            }
+            .simultaneousGesture(TapGesture().onEnded {
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                                to: nil, from: nil, for: nil)
+            })
 
             // DETECTA
             NavigationLink {
@@ -195,19 +205,20 @@ private struct ActionsGrid: View {
                     .contentShape(Rectangle())
             }
             .simultaneousGesture(TapGesture().onEnded {
-                // esto asegura que el teclado se cierre si estaba abierto
                 UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
                                                 to: nil, from: nil, for: nil)
             })
-            
+
+            // INFÓRMATE
             NavigationLink {
                 DiseaseView(diseaseList: sampleDiseases)
             } label: {
                 ActionCardView(color: brown2, systemImage: "bandage.fill",
-                                     title: "Infórmate", subtitle: "Cuida tu cultivo")
+                               title: "Infórmate", subtitle: "Cuida tu cultivo")
+                    .contentShape(Rectangle())
             }
 
-            // CONSULTA (usa el NavigationStack ya existente)
+            // CONSULTA
             NavigationLink {
                 HistoryView()
             } label: {
