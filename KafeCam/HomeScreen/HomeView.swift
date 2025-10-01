@@ -6,6 +6,7 @@
 //
 import SwiftUI
 import UIKit
+import MapKit
 
 struct HomeView: View {
     @AppStorage("displayName") private var displayName: String = ""
@@ -73,8 +74,8 @@ struct HomeView: View {
             }
             .tabItem { Label("Inicio", systemImage: "house.fill") }
 
-            ProfileTabView()
-                .tabItem { Label("Perfil", systemImage: "person.fill") }
+            MapSectionView()
+                .tabItem { Label("Mapa", systemImage: "map.fill") }
 
             Text("Favoritos")
                 .tabItem { Label("Favoritos", systemImage: "heart.fill") }
@@ -127,7 +128,13 @@ private struct Header: View {
                     .fontWeight(.medium)
             }
             Spacer(minLength: 0)
-            AvatarCircle(initials: initials)
+            NavigationLink {
+                ProfileTabView()
+            } label: {
+                AvatarCircle(initials: initials)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Abrir perfil")
         }
         .padding(.top, 8)
     }
@@ -232,6 +239,23 @@ private struct ActionsGrid: View {
             })
         }
         .buttonStyle(.plain)
+    }
+}
+
+private struct MapSectionView: View {
+    @State private var position = MapCameraPosition.region(
+        MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: 15.7845002, longitude: -92.7611756),
+            span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)
+        )
+    )
+
+    var body: some View {
+        NavigationStack {
+            Map(position: $position)
+                .ignoresSafeArea(edges: .bottom)
+                .navigationTitle("Mapa")
+        }
     }
 }
 
