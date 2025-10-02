@@ -16,25 +16,30 @@ final class SupabaseCodeAuthService: AuthService {
 	
 	func register(name: String, email: String?, phone: String, password: String, organization: String) throws {
 		guard Self.validateCode(phone) else { throw AuthError.invalidPhone }
+		print("[SupabaseAuth] Starting registration for phone: \(phone)")
 		_ = try Self.blocking {
-			let _ = try await SupaAuthService.signUpThenSignIn(code: phone, password: password, metaName: name, metaOrg: organization, metaPhone: phone, metaEmail: (email?.isEmpty == true ? nil : email))
-			// Best-effort profile sync; do not block signup on secondary failures
+			let userId = try await SupaAuthService.signUpThenSignIn(code: phone, password: password, metaName: name, metaOrg: organization, metaPhone: phone, metaEmail: (email?.isEmpty == true ? nil : email))
+			print("[SupabaseAuth] User created with ID: \(userId)")
+			
+			// Ensure profile is properly synced
 			do {
 				let profiles = ProfilesRepository()
-				let _ = try await profiles.upsertCurrentUserProfile(
+				let profile = try await profiles.upsertCurrentUserProfile(
 					name: name,
 					email: (email?.isEmpty == true ? nil : email),
 					phone: phone,
 					organization: organization
 				)
-				let me = try await profiles.getCurrent()
-				if let full = me.name?.trimmingCharacters(in: .whitespacesAndNewlines), !full.isEmpty {
-					let first = full.split(whereSeparator: { $0.isWhitespace }).first.map(String.init)
-					if let first, !first.isEmpty { UserDefaults.standard.set(first, forKey: "displayName") }
+				print("[SupabaseAuth] Profile synced - Name: \(profile.name ?? "nil"), Phone: \(profile.phone ?? "nil")")
+				
+				// Update display name
+				if let full = profile.name?.trimmingCharacters(in: .whitespacesAndNewlines), !full.isEmpty {
+					let first = full.split(whereSeparator: { $0.isWhitespace }).first.map(String.init) ?? full
+					UserDefaults.standard.set(first, forKey: "displayName")
+					print("[SupabaseAuth] Display name set to: \(first)")
 				}
 			} catch {
-				// Log but don't fail registration
-				print("Profile sync after signup failed: \(error)")
+				print("[SupabaseAuth] Profile sync after signup failed: \(error)")
 			}
 		}
 		currentPhone = phone
@@ -42,12 +47,24 @@ final class SupabaseCodeAuthService: AuthService {
 	
 	func login(phone: String, password: String) throws {
 		guard Self.validateCode(phone) else { throw AuthError.userNotFoundOrBadPassword }
+		print("[SupabaseAuth] Starting login for phone: \(phone)")
 		_ = try Self.blocking {
-			let _ = try await SupaAuthService.signInOrSignUp(code: phone, password: password)
-			// Best-effort display name refresh
-			if let me = try? await ProfilesRepository().getCurrent(), let full = me.name?.trimmingCharacters(in: .whitespacesAndNewlines), !full.isEmpty {
-				let first = full.split(whereSeparator: { $0.isWhitespace }).first.map(String.init)
-				if let first, !first.isEmpty { UserDefaults.standard.set(first, forKey: "displayName") }
+			let userId = try await SupaAuthService.signInOrSignUp(code: phone, password: password)
+			print("[SupabaseAuth] Logged in with User ID: \(userId)")
+			
+			// Ensure profile exists and sync display name
+			do {
+				let profiles = ProfilesRepository()
+				let me = try await profiles.getOrCreateCurrent()
+				print("[SupabaseAuth] Profile fetched - Name: \(me.name ?? "nil"), Phone: \(me.phone ?? "nil")")
+				
+				if let full = me.name?.trimmingCharacters(in: .whitespacesAndNewlines), !full.isEmpty {
+					let first = full.split(whereSeparator: { $0.isWhitespace }).first.map(String.init) ?? full
+					UserDefaults.standard.set(first, forKey: "displayName")
+					print("[SupabaseAuth] Display name refreshed to: \(first)")
+				}
+			} catch {
+				print("[SupabaseAuth] Profile sync after login failed: \(error)")
 			}
 		}
 		currentPhone = phone

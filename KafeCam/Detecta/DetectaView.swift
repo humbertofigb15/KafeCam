@@ -9,6 +9,7 @@ import Vision
 
 struct DetectaView: View {
     @EnvironmentObject var historyStore: HistoryStore
+    private let capturesService = CapturesService()
     @State private var prediction: String = "Apunta la cámara a una hoja ☕️🍃"
     @State private var capturedImage: UIImage?
     @State private var showCamera = true
@@ -39,9 +40,8 @@ struct DetectaView: View {
                         .foregroundColor(.red)
 
                         Button("✅ Aceptar") {
-                            if let img = capturedImage {
-                                historyStore.add(image: img, prediction: prediction)
-                                showSaveOptions = false
+                            Task {
+                                await saveAcceptedCapture()
                             }
                         }
                         .foregroundColor(.green)
@@ -108,6 +108,20 @@ struct DetectaView: View {
                     prediction = "⚠️ Error al procesar la imagen"
                 }
             }
+        }
+    }
+
+    // Guarda en Supabase: usa (o crea) un plot por defecto y registra la captura
+    private func saveAcceptedCapture() async {
+        guard let img = capturedImage, let data = img.jpegData(compressionQuality: 0.9) else { return }
+        do {
+            _ = try await capturesService.saveCaptureToDefaultPlot(imageData: data, takenAt: Date(), deviceModel: UIDevice.current.model)
+            // Mantén UX local actual
+            historyStore.add(image: img, prediction: prediction)
+            showSaveOptions = false
+        } catch {
+            // feedback mínimo
+            prediction = "⚠️ No se pudo guardar la foto"
         }
     }
 }

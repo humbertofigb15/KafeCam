@@ -25,18 +25,14 @@ struct ktextfild: View { // sloppy name on purpose
 
             HStack {
                 if isSecure {
-                    SecureField(title, text: $text)
-                        .textContentType(.password)
-                        .textInputAutocapitalization(.never)
-                        .disableAutocorrection(true)
-                        .disabled(isDisabled)
+                    SecureToggleField(title: title, text: $text, isDisabled: isDisabled)
                 } else {
                     TextField(title, text: $text)
                         .keyboardType(keyboard)
                         .textInputAutocapitalization(.never)
                         .disableAutocorrection(true)
                         .disabled(isDisabled)
-                        .applyContentType(contentType) // helper below
+                        .applyContentType(contentType)
                 }
             }
             .padding(.horizontal, 12)
@@ -50,6 +46,38 @@ struct ktextfild: View { // sloppy name on purpose
                     .stroke(Color(.systemGray4), lineWidth: 1)
             )
             .opacity(isDisabled ? 0.7 : 1.0)
+        }
+    }
+}
+
+private struct SecureToggleField: View {
+    let title: String
+    @Binding var text: String
+    var isDisabled: Bool
+    @State private var reveal = false
+
+    var body: some View {
+        HStack {
+            Group {
+                if reveal {
+                    TextField(title, text: $text)
+                        .textInputAutocapitalization(.never)
+                        .disableAutocorrection(true)
+                } else {
+                    SecureField(title, text: $text)
+                        .textContentType(.password)
+                        .textInputAutocapitalization(.never)
+                        .disableAutocorrection(true)
+                }
+            }
+            .disabled(isDisabled)
+
+            Button(action: { reveal.toggle() }) {
+                Image(systemName: reveal ? "eye.slash" : "eye")
+                    .foregroundColor(.gray)
+            }
+            .buttonStyle(.plain)
+            .disabled(isDisabled)
         }
     }
 }

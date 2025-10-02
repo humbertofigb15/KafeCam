@@ -25,16 +25,16 @@ struct LoginView: View {
                         .font(.system(size: 40))
                         .foregroundColor(accentColor)
 
-                    Text("Welcome back")
+                    Text("Bienvenido")
                         .font(.largeTitle.weight(.bold))
                         .foregroundColor(accentColor)
 
-                    Text("Sign in to continue")
+                    Text("Inicia sesión para continuar")
                         .foregroundColor(darkColor)
 
                     AuthCard {
                         // Phone
-                        ktextfild(title: "Phone (10 digits)",
+                        ktextfild(title: "Teléfono (10 dígitos)",
                                   text: $vm.phone,
                                   keyboard: .numberPad,
                                   contentType: .telephoneNumber)
@@ -43,7 +43,7 @@ struct LoginView: View {
                         }
 
                         // Password
-                        ktextfild(title: "Password",
+                        ktextfild(title: "Contraseña",
                                   text: $vm.password,
                                   isSecure: true,
                                   keyboard: .default,
@@ -53,7 +53,7 @@ struct LoginView: View {
                         }
 
                         // Apple-like button
-                        Button("Sign In", action: vm.submit)
+                        Button("Iniciar sesión", action: vm.submit)
                             .buttonStyle(.borderedProminent)
                             .tint(accentColor)
                             .buttonBorderShape(.roundedRectangle(radius: 14))
@@ -65,12 +65,21 @@ struct LoginView: View {
                             .disabled(vm.isLoading)
                     }
 
-                    HStack(spacing: 6) {
-                        Text("No account?")
-                        Button("Create one") { goRegister = true }
-                            .foregroundColor(accentColor)
+                    VStack(spacing: 8) {
+                        HStack(spacing: 6) {
+                            Text("¿No tienes cuenta?")
+                            Button("Crear una") { goRegister = true }
+                                .foregroundColor(accentColor)
+                        }
+                        .font(.subheadline)
+                        NavigationLink {
+                            ForgotPasswordView()
+                        } label: {
+                            Text("¿Olvidaste tu contraseña?").underline()
+                        }
+                        .foregroundColor(accentColor)
+                        .font(.footnote)
                     }
-                    .font(.subheadline)
                 }
                 .frame(maxWidth: .infinity)
 
@@ -82,10 +91,6 @@ struct LoginView: View {
                 RegisterView(vm: RegisterViewModel(auth: vm.auth, session: vm.session))
             }
         }
-        .alert("Account created", isPresented: $vm.signupJustSucceeded) {
-            Button("OK") { vm.signupJustSucceeded = false }
-        } message: {
-            Text("Sign in using your 10-digit code and password.")
-        }
+        // Signup success alert disabled to avoid showing on cold launches
     }
 }

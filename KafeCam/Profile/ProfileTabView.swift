@@ -21,12 +21,12 @@ struct ProfileTabView: View {
                     HStack {
                         AvatarView(initials: vm.initials)
                         VStack(alignment: .leading) {
-                            Text(vm.displayName).font(.headline)
+                            Text(vm.displayName.isEmpty ? "—" : vm.displayName).font(.headline)
                             if let email = vm.email, !email.isEmpty { Text(email).foregroundStyle(.secondary) }
                         }
                     }
                 } header: {
-                    Text("Account").foregroundStyle(accentColor)
+                    Text("Cuenta").foregroundStyle(accentColor)
                 }
                 Section {
                     LabeledContent {
@@ -47,18 +47,45 @@ struct ProfileTabView: View {
                             Image(systemName: "leaf.fill").foregroundStyle(accentColor)
                         }
                     }
+                    if let role = vm.role {
+                        LabeledContent("Rol", value: role.capitalized)
+                    }
+                    if let tname = vm.technicianName, !tname.isEmpty {
+                        LabeledContent("Técnico", value: tname)
+                    }
+                    if !(vm.incomingRequests.isEmpty) {
+                        NavigationLink {
+                            RequestsInboxView(requests: vm.incomingRequests)
+                        } label: {
+                            Label("Peticiones", systemImage: "tray.full.fill").foregroundStyle(accentColor)
+                        }
+                    }
+                    // TODO (future): Edit profile fields and upload avatar
+                    if vm.canManageFarmers {
+                        NavigationLink {
+                            FarmersListView()
+                        } label: {
+                            Label("Farmers", systemImage: "person.3.fill").foregroundStyle(accentColor)
+                        }
+                    }
                 } header: {
-                    Text("Details").foregroundStyle(accentColor)
+                    Text("Detalles").foregroundStyle(accentColor)
                 }
                 Section {
+                    NavigationLink {
+                        ChangePasswordView()
+                    } label: {
+                        Label("Cambiar contraseña", systemImage: "key.fill").foregroundStyle(accentColor)
+                    }
                     Button(role: .destructive) {
                         vm.logout()
                     } label: {
-                        Label("Logout", systemImage: "rectangle.portrait.and.arrow.right").foregroundStyle(accentColor)
+                        Label("Cerrar sesión", systemImage: "rectangle.portrait.and.arrow.right").foregroundStyle(accentColor)
                     }
                 }
             }
-            .navigationTitle("Profile")
+            .navigationTitle("Perfil")
+            // Editar perfil oculto temporalmente
         }
         .task { await vm.load() }
     }

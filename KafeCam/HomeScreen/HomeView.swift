@@ -86,13 +86,30 @@ struct HomeView: View {
     // sincroniza nombre e iniciales
     private func syncProfileToAppStorage() async {
         do {
-            let p = try await ProfilesRepository().getCurrent()
-            let first = (p.name ?? "").split(whereSeparator: { $0.isWhitespace }).first.map(String.init) ?? (p.name ?? "")
-            UserDefaults.standard.set(first, forKey: "displayName")
-            let initials = Self.makeInitials(from: p.name)
+            // Log session info for diagnostics
+            let userId = try await SupaAuthService.currentUserId()
+            let loginCode = try? await SupaAuthService.currentLoginCode()
+            print("[HomeView] Session User ID: \(userId)")
+            print("[HomeView] Login Code: \(loginCode ?? "none")")
+            
+            let repo = ProfilesRepository()
+            let p = try await repo.getOrCreateCurrent()
+            
+            print("[HomeView] Profile loaded - Name: \(p.name ?? "nil"), Phone: \(p.phone ?? "nil"), Email: \(p.email ?? "nil")")
+            
+            // Extract first name for greeting
+            let fullName = p.name ?? ""
+            let firstName = fullName.split(whereSeparator: { $0.isWhitespace }).first.map(String.init) ?? fullName
+            
+            // Update AppStorage
+            UserDefaults.standard.set(firstName, forKey: "displayName")
+            let initials = Self.makeInitials(from: fullName)
             UserDefaults.standard.set(initials, forKey: "profileInitials")
+            
+            print("[HomeView] Display Name set to: \(firstName)")
+            print("[HomeView] Initials set to: \(initials)")
         } catch {
-            // no-op
+            print("[HomeView] Error syncing profile: \(error)")
         }
     }
 
