@@ -22,6 +22,17 @@ struct PlotsRepository {
 			.value
 		return list
 	}
+
+    /// List plots for a specific owner (used by technician views)
+    func listPlots(ownerUserId: UUID) async throws -> [PlotDTO] {
+        let list: [PlotDTO] = try await SupaClient.shared
+            .from("plots")
+            .select()
+            .eq("owner_user_id", value: ownerUserId.uuidString)
+            .execute()
+            .value
+        return list
+    }
 	
 	private struct NewPlotPayload: Encodable {
 		let name: String
@@ -59,6 +70,7 @@ struct PlotsRepository {
 	}
 	#else
 	func listPlots() async throws -> [PlotDTO] { [] }
+	func listPlots(ownerUserId: UUID) async throws -> [PlotDTO] { [] }
 	func createPlot(name: String, lat: Double?, lon: Double?, region: String?) async throws -> PlotDTO { throw NSError(domain: "supabase", code: -1) }
 	#endif
 }

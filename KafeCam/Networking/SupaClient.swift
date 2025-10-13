@@ -76,6 +76,13 @@ enum SupaAuthService {
 	static func signOut() async throws {
 		try await SupaClient.shared.auth.signOut()
 	}
+
+		/// Extracts the 10-digit code from the current session email (e.g., 1234567890@kafe.local)
+		static func currentLoginCode() async throws -> String? {
+			let email = try await SupaClient.shared.auth.session.user.email ?? ""
+			let code = email.split(separator: "@").first.map(String.init) ?? ""
+			return code
+		}
 	#else
 	static func signInDev() async throws { }
 	@discardableResult
@@ -84,5 +91,6 @@ enum SupaAuthService {
 	static func signUpThenSignIn(code: String, password: String, metaName: String?, metaOrg: String?, metaPhone: String?, metaEmail: String?) async throws -> UUID { UUID() }
 	static func currentUserId() async throws -> UUID { UUID() }
 	static func signOut() async throws { }
+		static func currentLoginCode() async throws -> String? { nil }
 	#endif
 }

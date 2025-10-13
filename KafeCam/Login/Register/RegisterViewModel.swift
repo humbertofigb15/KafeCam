@@ -9,13 +9,16 @@
 import Foundation
 
 final class RegisterViewModel: ObservableObject {
-    @Published var name: String = ""
+    // Split name fields for greeting "Hola {Nombres}"
+    @Published var firstName: String = ""
+    @Published var lastName: String = ""
     @Published var email: String = ""
     @Published var phone: String = ""
     @Published var password: String = ""
     @Published var organization: String = "Kaapeh"
 
-    @Published var nameError: String? = nil
+    @Published var firstNameError: String? = nil
+    @Published var lastNameError: String? = nil
     @Published var emailError: String? = nil
     @Published var phoneError: String? = nil
     @Published var passwordError: String? = nil
@@ -30,12 +33,16 @@ final class RegisterViewModel: ObservableObject {
     }
 
     func submit() -> Bool {
-        nameError = nil; emailError = nil; phoneError = nil; passwordError = nil
+        firstNameError = nil; lastNameError = nil; emailError = nil; phoneError = nil; passwordError = nil
         isLoading = true
         defer { isLoading = false }
 
-        if name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            nameError = AuthError.invalidName.errorDescription; return false
+        if firstName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            firstNameError = AuthError.invalidName.errorDescription; return false
+        }
+        // Last name optional but keep for completeness; validate minimal length if provided
+        if !lastName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && lastName.count < 2 {
+            lastNameError = "Apellido muy corto"; return false
         }
         if !email.isEmpty && !LocalAuthService.validateEmail(email) {
             emailError = AuthError.invalidEmail.errorDescription; return false
@@ -48,15 +55,18 @@ final class RegisterViewModel: ObservableObject {
         }
 
         do {
-            try auth.register(name: name, email: email.isEmpty ? nil : email,
+            let fullName = lastName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? firstName : "\(firstName) \(lastName)"
+            print("[RegisterVM] Registering with Name: \(fullName), Phone: \(phone), Email: \(email.isEmpty ? "none" : email), Org: \(organization)")
+            try auth.register(name: fullName, email: email.isEmpty ? nil : email,
                               phone: phone, password: password, organization: organization)
             // Do NOT auto-login; signal success so Login can show a confirmation
             UserDefaults.standard.set(true, forKey: "signupSuccess")
+            print("[RegisterVM] Registration successful")
             return true
         } catch let err as AuthError {
             switch err {
             case .duplicatePhone: phoneError = err.errorDescription
-            case .invalidName:    nameError = err.errorDescription
+            case .invalidName:    firstNameError = err.errorDescription
             case .invalidEmail:   emailError = err.errorDescription
             case .invalidPhone:   phoneError = err.errorDescription
             case .weakPassword:   passwordError = err.errorDescription

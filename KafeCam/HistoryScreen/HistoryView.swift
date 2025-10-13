@@ -16,24 +16,39 @@ struct HistoryView: View {
                 .foregroundColor(accentColor)
                 .padding(.horizontal)
 
-            if historyStore.entries.isEmpty {
+            if historyStore.entries.isEmpty && historyStore.sections.isEmpty {
                 ContentUnavailableView(
                     "Sin fotos",
                     systemImage: "photo.on.rectangle.angled",
                     description: Text("Aún no guardas fotos. Captura una en Detecta y guárdala aquí.")
                 )
-            } else {
+            } else if !historyStore.entries.isEmpty {
                 List(historyStore.entries) { entry in
                     HistoryRow(entry: entry)
                         .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 12, trailing: 16))
                         .listRowSeparator(.hidden)
                 }
                 .listStyle(.plain)
+            } else {
+                // Technician sections
+                List {
+                    ForEach(historyStore.sections, id: \.id) { section in
+                        Section(header: Text("\(section.farmerName)").font(.headline)) {
+                            ForEach(section.entries) { entry in
+                                HistoryRow(entry: entry)
+                                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 12, trailing: 16))
+                                    .listRowSeparator(.hidden)
+                            }
+                        }
+                    }
+                }
+                .listStyle(.insetGrouped)
             }
         }
         .navigationTitle("Historial")
         .navigationBarTitleDisplayMode(.inline)
         .tint(accentColor)
+        .task { await historyStore.syncFromSupabase() }
     }
 }
 

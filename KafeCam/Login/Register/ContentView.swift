@@ -14,8 +14,8 @@ struct ContentView: View {
         if session.isLoggedIn {
             HomeView() // <- tu pantalla existente
                 .environmentObject(session)
-                .toolbar {
-                    Button("Logout") { session.logout() }
+                .onReceive(NotificationCenter.default.publisher(for: .init("kafe.session.logout"))) { _ in
+                    session.logout()
                 }
         } else {
             // Inyectamos session en el VM del login

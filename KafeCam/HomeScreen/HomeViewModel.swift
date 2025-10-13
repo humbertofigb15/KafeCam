@@ -15,7 +15,7 @@ final class HomeViewModel: ObservableObject {
     
     // Estado expuesto a la vista
     @Published var alerts: [AlertItem] = []
-    @Published var greetingName: String = "Grecia"
+    @Published var greetingName: String = ""
     
     // Colores
     let accentColor  = Color(red: 88/255, green: 129/255, blue: 87/255)

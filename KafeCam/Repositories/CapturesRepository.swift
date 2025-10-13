@@ -62,7 +62,20 @@ struct CapturesRepository {
 			.value
 		return inserted
 	}
+
+    /// List captures for a specific user (used by technician views)
+    func listCaptures(uploadedBy userId: UUID) async throws -> [CaptureDTO] {
+        let items: [CaptureDTO] = try await SupaClient.shared
+            .from("captures")
+            .select()
+            .eq("uploaded_by_user_id", value: userId.uuidString)
+            .order("taken_at", ascending: false)
+            .execute()
+            .value
+        return items
+    }
 	#else
 	func createCapture(plotId: UUID, takenAt: Date, photoKey: String, clientUUID: UUID? = nil, deviceModel: String? = nil, checksumSha256: String? = nil, createdOfflineAt: Date? = nil) async throws -> CaptureDTO { throw NSError(domain: "supabase", code: -1) }
+	func listCaptures(uploadedBy userId: UUID) async throws -> [CaptureDTO] { [] }
 	#endif
 }

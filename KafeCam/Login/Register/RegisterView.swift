@@ -26,34 +26,36 @@ struct RegisterView: View {
                     .font(.system(size: 40))
                     .foregroundColor(accentColor)
 
-                Text("Create account")
+                Text("Crear cuenta")
                     .font(.largeTitle.weight(.bold))
                     .foregroundColor(accentColor)
 
-                Text("Register with your details")
+                Text("Regístrate con tus datos")
                     .foregroundColor(darkColor)
 
                 AuthCard {
-                    // Name
-                    ktextfild(title: "Name", text: $vm.name, keyboard: .default, contentType: .name)
-                    if let e = vm.nameError { Text(e).font(.caption).foregroundColor(.red) }
+                    // Nombres / Apellidos
+                    ktextfild(title: "Nombres", text: $vm.firstName, keyboard: .default, contentType: .givenName)
+                    if let e = vm.firstNameError { Text(e).font(.caption).foregroundColor(.red) }
+                    ktextfild(title: "Apellidos", text: $vm.lastName, keyboard: .default, contentType: .familyName)
+                    if let e = vm.lastNameError { Text(e).font(.caption).foregroundColor(.red) }
 
                     // Email (optional)
-                    ktextfild(title: "Email (optional)", text: $vm.email, keyboard: .emailAddress, contentType: .emailAddress)
+                    ktextfild(title: "Correo (opcional)", text: $vm.email, keyboard: .emailAddress, contentType: .emailAddress)
                     if let e = vm.emailError { Text(e).font(.caption).foregroundColor(.red) }
 
                     // Phone
-                    ktextfild(title: "Phone (10 digits)", text: $vm.phone, keyboard: .numberPad, contentType: .telephoneNumber)
+                    ktextfild(title: "Teléfono (10 dígitos)", text: $vm.phone, keyboard: .numberPad, contentType: .telephoneNumber)
                     if let e = vm.phoneError { Text(e).font(.caption).foregroundColor(.red) }
 
                     // Password
-                    ktextfild(title: "Password", text: $vm.password, isSecure: true, keyboard: .default, contentType: .password)
+                    ktextfild(title: "Contraseña", text: $vm.password, isSecure: true, keyboard: .default, contentType: .password)
                     if let e = vm.passwordError { Text(e).font(.caption).foregroundColor(.red) }
 
                     // Organization (fixed Kaapeh, disabled)
-                    ktextfild(title: "Organization", text: $vm.organization, isSecure: false, keyboard: .default, contentType: .organizationName, isDisabled: true)
+                    ktextfild(title: "Organización", text: $vm.organization, isSecure: false, keyboard: .default, contentType: .organizationName, isDisabled: true)
 
-                    Button("Create Account") {
+                    Button("Crear cuenta") {
                         if vm.submit() { dismiss() }
                     }
                     .buttonStyle(.borderedProminent)

@@ -13,6 +13,7 @@ import Supabase
 struct CapturesService {
 	#if canImport(Supabase)
 	let capturesRepo = CapturesRepository()
+    let plotsRepo = PlotsRepository()
 	
 	/// Saves a capture referencing a photo key in Storage. Upload is TODO via team API.
 	func saveCapture(plotId: UUID, imageData: Data, takenAt: Date = Date(), deviceModel: String? = nil) async throws -> CaptureDTO {
@@ -30,6 +31,20 @@ struct CapturesService {
 		)
 		return capture
 	}
+
+    /// Convenience: ensures the user has at least one plot and returns its id.
+    func ensureDefaultPlotId() async throws -> UUID {
+        let existing = try await plotsRepo.listPlots()
+        if let first = existing.first { return first.id }
+        let created = try await plotsRepo.createPlot(name: "Mi lote", lat: nil, lon: nil, region: nil)
+        return created.id
+    }
+
+    /// Saves a capture using (or creating) a default plot for the current user.
+    func saveCaptureToDefaultPlot(imageData: Data, takenAt: Date = Date(), deviceModel: String? = nil) async throws -> CaptureDTO {
+        let plotId = try await ensureDefaultPlotId()
+        return try await saveCapture(plotId: plotId, imageData: imageData, takenAt: takenAt, deviceModel: deviceModel)
+    }
 	#else
 	func saveCapture(plotId: UUID, imageData: Data, takenAt: Date = Date(), deviceModel: String? = nil) async throws -> CaptureDTO { throw NSError(domain: "supabase", code: -1) }
 	#endif
