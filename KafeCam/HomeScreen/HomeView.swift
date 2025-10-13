@@ -77,8 +77,9 @@ struct HomeView: View {
             MapTabView()
                 .tabItem { Label("Mapa", systemImage: "map.fill") }
 
-            Text("Favoritos")
+            FavoritesView()
                 .tabItem { Label("Favoritos", systemImage: "heart.fill") }
+                .environmentObject(HistoryStore())
         }
         .tint(vm.accentColor)
     }

@@ -16,6 +16,7 @@ struct HistoryEntry: Identifiable {
     let image: UIImage
     let prediction: String
     let date: Date
+    var isFavorite: Bool = false
 
     init(image: UIImage, prediction: String) {
         self.image = image
