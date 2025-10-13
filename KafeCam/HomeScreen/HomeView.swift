@@ -74,7 +74,7 @@ struct HomeView: View {
             }
             .tabItem { Label("Inicio", systemImage: "house.fill") }
 
-            MapSectionView()
+            MapTabView()
                 .tabItem { Label("Mapa", systemImage: "map.fill") }
 
             Text("Favoritos")
