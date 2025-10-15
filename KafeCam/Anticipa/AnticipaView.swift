@@ -5,7 +5,6 @@
 //  Created by Guillermo Lira on 30/09/25.
 //
 
-
 import SwiftUI
 
 // vista simple
@@ -13,9 +12,9 @@ import SwiftUI
 struct AnticipaView: View {
     @StateObject private var vm = AnticipaViewModel()
 
-    // colores
-    private let accent1 = Color(red: 1.0, green: 0.6039, blue: 0.3569)   // #FF9A5B
-    private let accent2 = Color(red: 0.529, green: 0.725, blue: 0.753)   // #87B9C0
+    // colores verdes
+    let accent1  = Color(red: 88/255, green: 129/255, blue: 87/255)
+    let accent2   = Color(red: 82/255,  green: 76/255,  blue: 41/255)
 
     var body: some View {
         ScrollView {
@@ -93,7 +92,7 @@ struct AnticipaView: View {
             .tint(accent2)
         }
     }
-
+    
     private func todayCard(_ c: CurrentWeather) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -208,6 +207,9 @@ struct AnticipaAlertBadge: View {
     let title: String
     let message: String
     let level: AnticipaAlertLevel
+    
+    private let cardWidth: CGFloat = 300
+    private let cardHeight: CGFloat = 92
 
     private var bg: Color {
         switch level {
@@ -232,15 +234,32 @@ struct AnticipaAlertBadge: View {
     }
 
     var body: some View {
-        HStack(alignment: .top, spacing: 8) {
+        HStack(alignment: .top, spacing: 10) {
             Image(systemName: icon)
+                .padding(.top, 2)
             VStack(alignment: .leading, spacing: 2) {
-                Text(title).font(.caption).bold()
-                Text(message).font(.caption2)
+                Text(title)
+                    .font(.subheadline)
+                    .bold()
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
+                Text(message)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
-        .padding(10)
-        .background(RoundedRectangle(cornerRadius: 12).fill(bg))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(border, lineWidth: 1))
+        .padding(12)
+        .background(RoundedRectangle(cornerRadius: 14).fill(bg))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(border.opacity(0.6), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .frame(width: 260, alignment: .leading)
     }
+}
+#Preview {
+    AnticipaView()
 }
