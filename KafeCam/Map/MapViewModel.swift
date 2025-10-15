@@ -60,6 +60,7 @@ final class PlotsMapViewModel: NSObject, ObservableObject, CLLocationManagerDele
     @Published var isAddingPin = false
 
     private var manager: CLLocationManager?
+    private var pinCreateObserver: NSObjectProtocol?
 
     override init() {
         self.region = MKCoordinateRegion(
@@ -70,6 +71,23 @@ final class PlotsMapViewModel: NSObject, ObservableObject, CLLocationManagerDele
         startLocation()
         // Pin inicial opcional (Base)
         pins.append(MapPlotPin(coordinate: baseCoordinate, name: "Base"))
+
+        // 🧩 Escuchar creación automática de pines (desde Detecta)
+        pinCreateObserver = NotificationCenter.default.addObserver(
+            forName: .kafeCreatePin,
+            object: nil,
+            queue: .main
+        ) { [weak self] note in
+            guard let self else { return }
+            guard let prob = note.userInfo?["probabilidad"] as? Double else { return }
+            self.handleAutoPin(probabilidad: prob)
+        }
+    }
+
+    deinit {
+        if let obs = pinCreateObserver {
+            NotificationCenter.default.removeObserver(obs)
+        }
     }
 
     // MARK: - Location
@@ -95,12 +113,10 @@ final class PlotsMapViewModel: NSObject, ObservableObject, CLLocationManagerDele
         self.manager = m
     }
 
-    // iOS 14+: se llama cuando cambia la autorización
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         handleAuthorization(manager.authorizationStatus, manager: manager)
     }
 
-    // iOS 13 y anteriores (o compatibilidad): también lo soportamos
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         handleAuthorization(status, manager: manager)
     }
@@ -109,7 +125,7 @@ final class PlotsMapViewModel: NSObject, ObservableObject, CLLocationManagerDele
         switch status {
         case .authorizedWhenInUse, .authorizedAlways:
             manager.startUpdatingLocation()
-            manager.requestLocation() // lectura rápida cuando se autoriza
+            manager.requestLocation()
         default:
             break
         }
@@ -118,7 +134,6 @@ final class PlotsMapViewModel: NSObject, ObservableObject, CLLocationManagerDele
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let latest = locations.last else { return }
         userCoordinate = latest.coordinate
-        // No recentramos aquí para no romper el pan/zoom del usuario
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
@@ -159,5 +174,31 @@ final class PlotsMapViewModel: NSObject, ObservableObject, CLLocationManagerDele
         region = MKCoordinateRegion(center: pin.coordinate,
                                     span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05))
         selectedPin = pin
+    }
+
+    // MARK: - Crear pin automático desde Detecta
+    private func handleAutoPin(probabilidad: Double) {
+        // Umbrales
+        let status: PlotStatus
+        switch probabilidad {
+        case 70...100: status = .enfermo
+        case 40..<70:  status = .sospecha
+        default:       status = .sano
+        }
+
+        guard let coord = userCoordinate else {
+            NotificationCenter.default.post(name: .kafePinAddFailedNoLocation, object: nil)
+            return
+        }
+
+        let newPin = MapPlotPin(
+            coordinate: coord,
+            name: "Plantío \(pins.count + 1)",
+            status: status,
+            plantedAt: Date()
+        )
+
+        pins.append(newPin)
+        NotificationCenter.default.post(name: .kafePinAdded, object: nil)
     }
 }

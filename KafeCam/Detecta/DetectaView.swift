@@ -11,13 +11,17 @@ struct DetectaView: View {
     @Environment(\.dismiss) var dismiss      // ✅ para regresar al Home directamente
     @EnvironmentObject var historyStore: HistoryStore
     
-    private let capturesService = CapturesService()
-    
+    private let capturesService = CapturesService() // (no se usa en este flujo local, lo dejamos por si lo reactivas)
+
     @State private var prediction: String = ""
     @State private var capturedImage: UIImage?
     @State private var showCamera = true     // arranca directamente en cámara
     @State private var takePhotoTrigger = false
     @State private var showSaveOptions = false
+
+    // ✅ NUEVO: datos “reales” del modelo para no parsear desde el texto
+    @State private var lastIdentifier: String = ""
+    @State private var lastConfidencePct: Double = 0.0   // 0–100
 
     var body: some View {
         ZStack {
@@ -110,7 +114,10 @@ struct DetectaView: View {
         let request = VNCoreMLRequest(model: model) { request, _ in
             if let result = request.results?.first as? VNClassificationObservation {
                 DispatchQueue.main.async {
-                    prediction = "Predicción: \(result.identifier) (\(Int(result.confidence * 100))%)"
+                    // ✅ Guardamos datos “reales” para usar en la notificación
+                    lastIdentifier = result.identifier
+                    lastConfidencePct = Double(result.confidence * 100.0)
+                    prediction = "Predicción: \(result.identifier) (\(Int(lastConfidencePct))%)"
                 }
             }
         }
@@ -132,11 +139,27 @@ struct DetectaView: View {
         }
     }
 
-    // MARK: - Guardado local (sin Supabase)
+    // MARK: - Guardado local (Consulta) + notificación para crear pin en mapa
     private func saveAcceptedCapture() async {
         guard let img = capturedImage else { return }
+
+        // 1) Mantén flujo actual: guardar en “Consulta” (HistoryStore)
         historyStore.add(image: img, prediction: prediction)
         showSaveOptions = false
+
+        // 2) 🔔 Notificar al mapa para crear pin automático con última ubicación y estatus por %
+        NotificationCenter.default.post(
+            name: .kafeCreatePin,
+            object: nil,
+            userInfo: [
+                "probabilidad": lastConfidencePct, // Double 0–100
+                "label": lastIdentifier,           // opcional, por si quieres usarlo luego
+                "fecha": Date()
+            ]
+        )
+
+        // (opcional) si quieres regresar al Home automáticamente después de aceptar:
+            dismiss()
     }
 }
 
@@ -144,4 +167,10 @@ struct DetectaView: View {
     DetectaView()
         .environmentObject(HistoryStore())
 }
+import Foundation
 
+extension Notification.Name {
+    static let kafeCreatePin = Notification.Name("kafeCreatePin")
+    static let kafePinAdded = Notification.Name("kafePinAdded")
+    static let kafePinAddFailedNoLocation = Notification.Name("kafePinAddFailedNoLocation")
+}
