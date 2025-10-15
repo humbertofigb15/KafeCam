@@ -6,79 +6,63 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		E5A010A92E8A782F00A93A15 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = E5A010A82E8A782F00A93A15 /* Auth */; };
-		E5A010AB2E8A782F00A93A15 /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = E5A010AA2E8A782F00A93A15 /* Functions */; };
-		E5A010AD2E8A782F00A93A15 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = E5A010AC2E8A782F00A93A15 /* PostgREST */; };
-		E5A010AF2E8A782F00A93A15 /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = E5A010AE2E8A782F00A93A15 /* Realtime */; };
-		E5A010B12E8A782F00A93A15 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = E5A010B02E8A782F00A93A15 /* Storage */; };
-		E5A010B32E8A782F00A93A15 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = E5A010B22E8A782F00A93A15 /* Supabase */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXContainerItemProxy section */
-		144DD9242E6CDF5A00CCE4F4 /* PBXContainerItemProxy */ = {
+		147D3F252E98283800BA2483 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 144DD90D2E6CDF5700CCE4F4 /* Project object */;
+			containerPortal = 147D3F0F2E98283500BA2483 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 144DD9142E6CDF5700CCE4F4;
-			remoteInfo = KafeCam;
+			remoteGlobalIDString = 147D3F162E98283500BA2483;
+			remoteInfo = Player;
 		};
-		144DD92E2E6CDF5A00CCE4F4 /* PBXContainerItemProxy */ = {
+		147D3F2F2E98283800BA2483 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 144DD90D2E6CDF5700CCE4F4 /* Project object */;
+			containerPortal = 147D3F0F2E98283500BA2483 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 144DD9142E6CDF5700CCE4F4;
-			remoteInfo = KafeCam;
+			remoteGlobalIDString = 147D3F162E98283500BA2483;
+			remoteInfo = Player;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		144DD9152E6CDF5700CCE4F4 /* KafeCam.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KafeCam.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		144DD9232E6CDF5A00CCE4F4 /* KafeCamTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KafeCamTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		144DD92D2E6CDF5A00CCE4F4 /* KafeCamUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KafeCamUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		14922EF42E6FB7C8005E3413 /* KafeCam.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KafeCam.entitlements; sourceTree = "<group>"; };
+		147D3F172E98283500BA2483 /* Player.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Player.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		147D3F242E98283800BA2483 /* PlayerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PlayerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		147D3F2E2E98283800BA2483 /* PlayerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PlayerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		144DD9172E6CDF5700CCE4F4 /* KafeCam */ = {
+		147D3F192E98283500BA2483 /* Player */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = KafeCam;
+			path = Player;
 			sourceTree = "<group>";
 		};
-		144DD9262E6CDF5A00CCE4F4 /* KafeCamTests */ = {
+		147D3F272E98283800BA2483 /* PlayerTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = KafeCamTests;
+			path = PlayerTests;
 			sourceTree = "<group>";
 		};
-		144DD9302E6CDF5A00CCE4F4 /* KafeCamUITests */ = {
+		147D3F312E98283800BA2483 /* PlayerUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = KafeCamUITests;
+			path = PlayerUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		144DD9122E6CDF5700CCE4F4 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				E5A010AD2E8A782F00A93A15 /* PostgREST in Frameworks */,
-				E5A010AB2E8A782F00A93A15 /* Functions in Frameworks */,
-				E5A010B32E8A782F00A93A15 /* Supabase in Frameworks */,
-				E5A010A92E8A782F00A93A15 /* Auth in Frameworks */,
-				E5A010B12E8A782F00A93A15 /* Storage in Frameworks */,
-				E5A010AF2E8A782F00A93A15 /* Realtime in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		144DD9202E6CDF5A00CCE4F4 /* Frameworks */ = {
+		147D3F142E98283500BA2483 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		144DD92A2E6CDF5A00CCE4F4 /* Frameworks */ = {
+		147D3F212E98283800BA2483 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		147D3F2B2E98283800BA2483 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -88,175 +72,157 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		144DD90C2E6CDF5700CCE4F4 = {
+		147D3F0E2E98283500BA2483 = {
 			isa = PBXGroup;
 			children = (
-				144DD9172E6CDF5700CCE4F4 /* KafeCam */,
-				14922EF42E6FB7C8005E3413 /* KafeCam.entitlements */,
-				144DD9262E6CDF5A00CCE4F4 /* KafeCamTests */,
-				144DD9302E6CDF5A00CCE4F4 /* KafeCamUITests */,
-				7F65EAF62E8B0A9800D2A2E9 /* Frameworks */,
-				144DD9162E6CDF5700CCE4F4 /* Products */,
+				147D3F192E98283500BA2483 /* Player */,
+				147D3F272E98283800BA2483 /* PlayerTests */,
+				147D3F312E98283800BA2483 /* PlayerUITests */,
+				147D3F182E98283500BA2483 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		144DD9162E6CDF5700CCE4F4 /* Products */ = {
+		147D3F182E98283500BA2483 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				144DD9152E6CDF5700CCE4F4 /* KafeCam.app */,
-				144DD9232E6CDF5A00CCE4F4 /* KafeCamTests.xctest */,
-				144DD92D2E6CDF5A00CCE4F4 /* KafeCamUITests.xctest */,
+				147D3F172E98283500BA2483 /* Player.app */,
+				147D3F242E98283800BA2483 /* PlayerTests.xctest */,
+				147D3F2E2E98283800BA2483 /* PlayerUITests.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		7F65EAF62E8B0A9800D2A2E9 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		144DD9142E6CDF5700CCE4F4 /* KafeCam */ = {
+		147D3F162E98283500BA2483 /* Player */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 144DD9372E6CDF5A00CCE4F4 /* Build configuration list for PBXNativeTarget "KafeCam" */;
+			buildConfigurationList = 147D3F382E98283800BA2483 /* Build configuration list for PBXNativeTarget "Player" */;
 			buildPhases = (
-				144DD9112E6CDF5700CCE4F4 /* Sources */,
-				144DD9122E6CDF5700CCE4F4 /* Frameworks */,
-				144DD9132E6CDF5700CCE4F4 /* Resources */,
+				147D3F132E98283500BA2483 /* Sources */,
+				147D3F142E98283500BA2483 /* Frameworks */,
+				147D3F152E98283500BA2483 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				144DD9172E6CDF5700CCE4F4 /* KafeCam */,
+				147D3F192E98283500BA2483 /* Player */,
 			);
-			name = KafeCam;
+			name = Player;
 			packageProductDependencies = (
-				E5A010A82E8A782F00A93A15 /* Auth */,
-				E5A010AA2E8A782F00A93A15 /* Functions */,
-				E5A010AC2E8A782F00A93A15 /* PostgREST */,
-				E5A010AE2E8A782F00A93A15 /* Realtime */,
-				E5A010B02E8A782F00A93A15 /* Storage */,
-				E5A010B22E8A782F00A93A15 /* Supabase */,
 			);
-			productName = KafeCam;
-			productReference = 144DD9152E6CDF5700CCE4F4 /* KafeCam.app */;
+			productName = Player;
+			productReference = 147D3F172E98283500BA2483 /* Player.app */;
 			productType = "com.apple.product-type.application";
 		};
-		144DD9222E6CDF5A00CCE4F4 /* KafeCamTests */ = {
+		147D3F232E98283800BA2483 /* PlayerTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 144DD93A2E6CDF5A00CCE4F4 /* Build configuration list for PBXNativeTarget "KafeCamTests" */;
+			buildConfigurationList = 147D3F3B2E98283800BA2483 /* Build configuration list for PBXNativeTarget "PlayerTests" */;
 			buildPhases = (
-				144DD91F2E6CDF5A00CCE4F4 /* Sources */,
-				144DD9202E6CDF5A00CCE4F4 /* Frameworks */,
-				144DD9212E6CDF5A00CCE4F4 /* Resources */,
+				147D3F202E98283800BA2483 /* Sources */,
+				147D3F212E98283800BA2483 /* Frameworks */,
+				147D3F222E98283800BA2483 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				144DD9252E6CDF5A00CCE4F4 /* PBXTargetDependency */,
+				147D3F262E98283800BA2483 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				144DD9262E6CDF5A00CCE4F4 /* KafeCamTests */,
+				147D3F272E98283800BA2483 /* PlayerTests */,
 			);
-			name = KafeCamTests;
+			name = PlayerTests;
 			packageProductDependencies = (
 			);
-			productName = KafeCamTests;
-			productReference = 144DD9232E6CDF5A00CCE4F4 /* KafeCamTests.xctest */;
+			productName = PlayerTests;
+			productReference = 147D3F242E98283800BA2483 /* PlayerTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		144DD92C2E6CDF5A00CCE4F4 /* KafeCamUITests */ = {
+		147D3F2D2E98283800BA2483 /* PlayerUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 144DD93D2E6CDF5A00CCE4F4 /* Build configuration list for PBXNativeTarget "KafeCamUITests" */;
+			buildConfigurationList = 147D3F3E2E98283800BA2483 /* Build configuration list for PBXNativeTarget "PlayerUITests" */;
 			buildPhases = (
-				144DD9292E6CDF5A00CCE4F4 /* Sources */,
-				144DD92A2E6CDF5A00CCE4F4 /* Frameworks */,
-				144DD92B2E6CDF5A00CCE4F4 /* Resources */,
+				147D3F2A2E98283800BA2483 /* Sources */,
+				147D3F2B2E98283800BA2483 /* Frameworks */,
+				147D3F2C2E98283800BA2483 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				144DD92F2E6CDF5A00CCE4F4 /* PBXTargetDependency */,
+				147D3F302E98283800BA2483 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				144DD9302E6CDF5A00CCE4F4 /* KafeCamUITests */,
+				147D3F312E98283800BA2483 /* PlayerUITests */,
 			);
-			name = KafeCamUITests;
+			name = PlayerUITests;
 			packageProductDependencies = (
 			);
-			productName = KafeCamUITests;
-			productReference = 144DD92D2E6CDF5A00CCE4F4 /* KafeCamUITests.xctest */;
+			productName = PlayerUITests;
+			productReference = 147D3F2E2E98283800BA2483 /* PlayerUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		144DD90D2E6CDF5700CCE4F4 /* Project object */ = {
+		147D3F0F2E98283500BA2483 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1640;
-				LastUpgradeCheck = 1640;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
 				TargetAttributes = {
-					144DD9142E6CDF5700CCE4F4 = {
-						CreatedOnToolsVersion = 16.4;
+					147D3F162E98283500BA2483 = {
+						CreatedOnToolsVersion = 26.0.1;
 					};
-					144DD9222E6CDF5A00CCE4F4 = {
-						CreatedOnToolsVersion = 16.4;
-						TestTargetID = 144DD9142E6CDF5700CCE4F4;
+					147D3F232E98283800BA2483 = {
+						CreatedOnToolsVersion = 26.0.1;
+						TestTargetID = 147D3F162E98283500BA2483;
 					};
-					144DD92C2E6CDF5A00CCE4F4 = {
-						CreatedOnToolsVersion = 16.4;
-						TestTargetID = 144DD9142E6CDF5700CCE4F4;
+					147D3F2D2E98283800BA2483 = {
+						CreatedOnToolsVersion = 26.0.1;
+						TestTargetID = 147D3F162E98283500BA2483;
 					};
 				};
 			};
-			buildConfigurationList = 144DD9102E6CDF5700CCE4F4 /* Build configuration list for PBXProject "KafeCam" */;
+			buildConfigurationList = 147D3F122E98283500BA2483 /* Build configuration list for PBXProject "Player" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = 144DD90C2E6CDF5700CCE4F4;
+			mainGroup = 147D3F0E2E98283500BA2483;
 			minimizedProjectReferenceProxies = 1;
-			packageReferences = (
-				E5A010A72E8A782F00A93A15 /* XCRemoteSwiftPackageReference "supabase-swift" */,
-			);
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 144DD9162E6CDF5700CCE4F4 /* Products */;
+			productRefGroup = 147D3F182E98283500BA2483 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				144DD9142E6CDF5700CCE4F4 /* KafeCam */,
-				144DD9222E6CDF5A00CCE4F4 /* KafeCamTests */,
-				144DD92C2E6CDF5A00CCE4F4 /* KafeCamUITests */,
+				147D3F162E98283500BA2483 /* Player */,
+				147D3F232E98283800BA2483 /* PlayerTests */,
+				147D3F2D2E98283800BA2483 /* PlayerUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		144DD9132E6CDF5700CCE4F4 /* Resources */ = {
+		147D3F152E98283500BA2483 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		144DD9212E6CDF5A00CCE4F4 /* Resources */ = {
+		147D3F222E98283800BA2483 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		144DD92B2E6CDF5A00CCE4F4 /* Resources */ = {
+		147D3F2C2E98283800BA2483 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -266,21 +232,21 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		144DD9112E6CDF5700CCE4F4 /* Sources */ = {
+		147D3F132E98283500BA2483 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		144DD91F2E6CDF5A00CCE4F4 /* Sources */ = {
+		147D3F202E98283800BA2483 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		144DD9292E6CDF5A00CCE4F4 /* Sources */ = {
+		147D3F2A2E98283800BA2483 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -290,20 +256,20 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		144DD9252E6CDF5A00CCE4F4 /* PBXTargetDependency */ = {
+		147D3F262E98283800BA2483 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 144DD9142E6CDF5700CCE4F4 /* KafeCam */;
-			targetProxy = 144DD9242E6CDF5A00CCE4F4 /* PBXContainerItemProxy */;
+			target = 147D3F162E98283500BA2483 /* Player */;
+			targetProxy = 147D3F252E98283800BA2483 /* PBXContainerItemProxy */;
 		};
-		144DD92F2E6CDF5A00CCE4F4 /* PBXTargetDependency */ = {
+		147D3F302E98283800BA2483 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 144DD9142E6CDF5700CCE4F4 /* KafeCam */;
-			targetProxy = 144DD92E2E6CDF5A00CCE4F4 /* PBXContainerItemProxy */;
+			target = 147D3F162E98283500BA2483 /* Player */;
+			targetProxy = 147D3F2F2E98283800BA2483 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		144DD9352E6CDF5A00CCE4F4 /* Debug */ = {
+		147D3F362E98283800BA2483 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -365,7 +331,7 @@
 			};
 			name = Debug;
 		};
-		144DD9362E6CDF5A00CCE4F4 /* Release */ = {
+		147D3F372E98283800BA2483 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -419,20 +385,19 @@
 			};
 			name = Release;
 		};
-		144DD9382E6CDF5A00CCE4F4 /* Debug */ = {
+		147D3F392E98283800BA2483 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = KafeCam/KafeCam.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 5QU7DX383G;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Allow camera";
-				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = map;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -443,37 +408,40 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.gS.KafeCam;
+				PRODUCT_BUNDLE_IDENTIFIER = com.grace.Player;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				XROS_DEPLOYMENT_TARGET = 2.5;
+				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Debug;
 		};
-		144DD9392E6CDF5A00CCE4F4 /* Release */ = {
+		147D3F3A2E98283800BA2483 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = KafeCam/KafeCam.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 5QU7DX383G;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Allow camera";
-				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = map;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -484,24 +452,28 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.gS.KafeCam;
+				PRODUCT_BUNDLE_IDENTIFIER = com.grace.Player;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				XROS_DEPLOYMENT_TARGET = 2.5;
+				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Release;
 		};
-		144DD93B2E6CDF5A00CCE4F4 /* Debug */ = {
+		147D3F3C2E98283800BA2483 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -509,22 +481,25 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 5QU7DX383G;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.grace.KafeCamTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.grace.PlayerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KafeCam.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KafeCam";
-				XROS_DEPLOYMENT_TARGET = 2.5;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Player.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Player";
+				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Debug;
 		};
-		144DD93C2E6CDF5A00CCE4F4 /* Release */ = {
+		147D3F3D2E98283800BA2483 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -532,149 +507,114 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 5QU7DX383G;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.grace.KafeCamTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.grace.PlayerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KafeCam.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KafeCam";
-				XROS_DEPLOYMENT_TARGET = 2.5;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Player.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Player";
+				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Release;
 		};
-		144DD93E2E6CDF5A00CCE4F4 /* Debug */ = {
+		147D3F3F2E98283800BA2483 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 5QU7DX383G;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.grace.KafeCamUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.grace.PlayerUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_TARGET_NAME = KafeCam;
-				XROS_DEPLOYMENT_TARGET = 2.5;
+				TEST_TARGET_NAME = Player;
+				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Debug;
 		};
-		144DD93F2E6CDF5A00CCE4F4 /* Release */ = {
+		147D3F402E98283800BA2483 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 5QU7DX383G;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.grace.KafeCamUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.grace.PlayerUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_TARGET_NAME = KafeCam;
-				XROS_DEPLOYMENT_TARGET = 2.5;
+				TEST_TARGET_NAME = Player;
+				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		144DD9102E6CDF5700CCE4F4 /* Build configuration list for PBXProject "KafeCam" */ = {
+		147D3F122E98283500BA2483 /* Build configuration list for PBXProject "Player" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				144DD9352E6CDF5A00CCE4F4 /* Debug */,
-				144DD9362E6CDF5A00CCE4F4 /* Release */,
+				147D3F362E98283800BA2483 /* Debug */,
+				147D3F372E98283800BA2483 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		144DD9372E6CDF5A00CCE4F4 /* Build configuration list for PBXNativeTarget "KafeCam" */ = {
+		147D3F382E98283800BA2483 /* Build configuration list for PBXNativeTarget "Player" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				144DD9382E6CDF5A00CCE4F4 /* Debug */,
-				144DD9392E6CDF5A00CCE4F4 /* Release */,
+				147D3F392E98283800BA2483 /* Debug */,
+				147D3F3A2E98283800BA2483 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		144DD93A2E6CDF5A00CCE4F4 /* Build configuration list for PBXNativeTarget "KafeCamTests" */ = {
+		147D3F3B2E98283800BA2483 /* Build configuration list for PBXNativeTarget "PlayerTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				144DD93B2E6CDF5A00CCE4F4 /* Debug */,
-				144DD93C2E6CDF5A00CCE4F4 /* Release */,
+				147D3F3C2E98283800BA2483 /* Debug */,
+				147D3F3D2E98283800BA2483 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		144DD93D2E6CDF5A00CCE4F4 /* Build configuration list for PBXNativeTarget "KafeCamUITests" */ = {
+		147D3F3E2E98283800BA2483 /* Build configuration list for PBXNativeTarget "PlayerUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				144DD93E2E6CDF5A00CCE4F4 /* Debug */,
-				144DD93F2E6CDF5A00CCE4F4 /* Release */,
+				147D3F3F2E98283800BA2483 /* Debug */,
+				147D3F402E98283800BA2483 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		E5A010A72E8A782F00A93A15 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/supabase-community/supabase-swift";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.5.1;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		E5A010A82E8A782F00A93A15 /* Auth */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E5A010A72E8A782F00A93A15 /* XCRemoteSwiftPackageReference "supabase-swift" */;
-			productName = Auth;
-		};
-		E5A010AA2E8A782F00A93A15 /* Functions */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E5A010A72E8A782F00A93A15 /* XCRemoteSwiftPackageReference "supabase-swift" */;
-			productName = Functions;
-		};
-		E5A010AC2E8A782F00A93A15 /* PostgREST */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E5A010A72E8A782F00A93A15 /* XCRemoteSwiftPackageReference "supabase-swift" */;
-			productName = PostgREST;
-		};
-		E5A010AE2E8A782F00A93A15 /* Realtime */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E5A010A72E8A782F00A93A15 /* XCRemoteSwiftPackageReference "supabase-swift" */;
-			productName = Realtime;
-		};
-		E5A010B02E8A782F00A93A15 /* Storage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E5A010A72E8A782F00A93A15 /* XCRemoteSwiftPackageReference "supabase-swift" */;
-			productName = Storage;
-		};
-		E5A010B22E8A782F00A93A15 /* Supabase */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E5A010A72E8A782F00A93A15 /* XCRemoteSwiftPackageReference "supabase-swift" */;
-			productName = Supabase;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
-	rootObject = 144DD90D2E6CDF5700CCE4F4 /* Project object */;
+	rootObject = 147D3F0F2E98283500BA2483 /* Project object */;
 }
