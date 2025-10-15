@@ -14,9 +14,9 @@ struct MapTabView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                // MAPA PRINCIPAL
-                MapReader { proxy in
+            GeometryReader { geo in
+                ZStack {
+                    // Mapa con punto azul y pines
                     Map(
                         coordinateRegion: $vm.region,
                         interactionModes: .all,
@@ -35,76 +35,90 @@ struct MapTabView: View {
                         }
                     }
                     .ignoresSafeArea()
-                    .contentShape(Rectangle())
-                    .gesture(
-                        DragGesture(minimumDistance: 0).onEnded { value in
-                            guard vm.isAddingPin else { return }
-                            let pt = value.location
-                            if let coord = proxy.convert(pt, from: .local) {
-                                vm.addPin(at: coord)
-                                withAnimation { showHint = true }
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
-                                    withAnimation { showHint = false }
+
+                    // Overlay SOLO cuando vamos a colocar un pin
+                    if vm.isAddingPin {
+                        Color.clear
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .contentShape(Rectangle())
+                            // Capturamos el toque antes que el Map
+                            .highPriorityGesture(
+                                DragGesture(minimumDistance: 0)
+                                    .onChanged { value in
+                                        guard vm.isAddingPin else { return }
+                                        let pt = value.location
+                                        let coord = toCoordinate(point: pt, in: geo.size, region: vm.region)
+                                        vm.addPin(at: coord)
+                                        withAnimation { showHint = true }
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
+                                            withAnimation { showHint = false }
+                                        }
+                                    }
+                            )
+                    }
+
+                    // Menú vertical flotante (derecha)
+                    VStack {
+                        Spacer()
+                        VStack(spacing: 12) {
+                            // Alterna "Agregar pin" / "Cancelar"
+                            Button {
+                                vm.isAddingPin.toggle()
+                            } label: {
+                                menuButton(
+                                    icon: vm.isAddingPin ? "xmark.circle.fill" : "mappin.and.ellipse",
+                                    color: vm.isAddingPin ? .gray : .blue
+                                )
+                            }
+
+                            Button { vm.resetToBase() } label: {
+                                menuButton(icon: "house.fill", color: .orange)
+                            }
+                            Button { vm.goToUser() } label: {
+                                menuButton(icon: "location.fill", color: .red)
+                            }
+                            ForEach(Array(vm.pins.enumerated()), id: \.1.id) { idx, pin in
+                                Button { vm.goToPin(pin) } label: {
+                                    menuButton(icon: "\(idx + 1).circle.fill", color: .green)
                                 }
                             }
                         }
-                    )
-                }
-
-                // MENÚ FLOTANTE (derecha)
-                VStack {
-                    Spacer()
-                    VStack(spacing: 12) {
-                        Button { vm.isAddingPin = true } label: {
-                            menuButton(icon: "mappin.and.ellipse", color: .blue)
-                        }
-                        Button { vm.resetToBase() } label: {
-                            menuButton(icon: "house.fill", color: .orange)
-                        }
-                        Button { vm.goToUser() } label: {
-                            menuButton(icon: "location.fill", color: .red)
-                        }
-                        ForEach(Array(vm.pins.enumerated()), id: \.1.id) { idx, pin in
-                            Button { vm.goToPin(pin) } label: {
-                                menuButton(icon: "\(idx + 1).circle.fill", color: .green)
-                            }
-                        }
+                        .padding(.trailing, 12)
+                        .padding(.bottom, 28)
                     }
-                    .padding(.trailing, 12)
-                    .padding(.bottom, 28)
-                }
-                .frame(maxWidth: .infinity, alignment: .trailing)
-                .zIndex(2)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .zIndex(2)
 
-                // MENSAJE DE PIN AGREGADO
-                if showHint {
-                    VStack {
-                        Spacer()
-                        Text("📍 Pin agregado")
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 10)
-                            .background(.ultraThinMaterial)
-                            .clipShape(Capsule())
-                            .shadow(radius: 3)
-                            .padding(.bottom, 70)
+                    // Hint "pin agregado"
+                    if showHint {
+                        VStack {
+                            Spacer()
+                            Text("📍 Pin agregado")
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 10)
+                                .background(.ultraThinMaterial)
+                                .clipShape(Capsule())
+                                .shadow(radius: 3)
+                                .padding(.bottom, 70)
+                        }
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .zIndex(3)
                     }
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                    .zIndex(3)
-                }
 
-                // INSTRUCCIÓN CUANDO SE ESTÁ AGREGANDO PIN
-                if vm.isAddingPin {
-                    VStack {
-                        Text("Toca el mapa para colocar el pin")
-                            .font(.callout.weight(.semibold))
-                            .padding(8)
-                            .background(.ultraThinMaterial)
-                            .clipShape(Capsule())
-                            .padding(.top, 12)
-                        Spacer()
+                    // Instrucción
+                    if vm.isAddingPin {
+                        VStack {
+                            Text("Toca el mapa para colocar el pin")
+                                .font(.callout.weight(.semibold))
+                                .padding(8)
+                                .background(.ultraThinMaterial)
+                                .clipShape(Capsule())
+                                .padding(.top, 12)
+                            Spacer()
+                        }
+                        .transition(.opacity)
+                        .zIndex(3)
                     }
-                    .transition(.opacity)
-                    .zIndex(3)
                 }
             }
             .navigationTitle("Mapa")
@@ -119,7 +133,7 @@ struct MapTabView: View {
         }
     }
 
-    // MARK: - Binding real al pin dentro del array del VM
+    // Binding real al pin dentro del array del VM
     private func binding(for pin: MapPlotPin) -> Binding<MapPlotPin> {
         guard let idx = vm.pins.firstIndex(where: { $0.id == pin.id }) else {
             fatalError("Pin no encontrado")
@@ -127,7 +141,8 @@ struct MapTabView: View {
         return $vm.pins[idx]
     }
 
-    // MARK: - Helpers UI
+    // MARK: - Helpers UI / Coord
+
     private func menuButton(icon: String, color: Color) -> some View {
         Image(systemName: icon)
             .font(.system(size: 20))
@@ -143,6 +158,21 @@ struct MapTabView: View {
         case .sospecha: return .yellow
         case .enfermo:  return .red
         }
+    }
+
+    /// Conversión aproximada punto (en la vista) → coordenada usando la región visible
+    private func toCoordinate(point: CGPoint, in size: CGSize, region: MKCoordinateRegion) -> CLLocationCoordinate2D {
+        // Nota: es una aproximación lineal (Mercator no es lineal), pero funciona bien para colocar pines.
+        let latDelta = region.span.latitudeDelta
+        let lonDelta = region.span.longitudeDelta
+
+        // Normalizamos punto respecto al centro de la vista
+        let dx = (point.x - size.width  / 2.0) / size.width
+        let dy = (size.height / 2.0 - point.y) / size.height
+
+        let lat = region.center.latitude  + Double(dy) * latDelta
+        let lon = region.center.longitude + Double(dx) * lonDelta
+        return CLLocationCoordinate2D(latitude: lat, longitude: lon)
     }
 }
 
@@ -200,6 +230,7 @@ struct PinDetailSheet: View {
 
 // MARK: - Helper genérico: Binding<Optional> → Binding<Wrapped>
 extension Binding {
+    /// Convierte un Binding<T?> en Binding<T> proporcionando un valor por defecto.
     func unwrap<T>(_ defaultValue: T) -> Binding<T> where Value == T? {
         Binding<T>(
             get: { self.wrappedValue ?? defaultValue },

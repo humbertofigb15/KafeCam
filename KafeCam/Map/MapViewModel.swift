@@ -5,7 +5,6 @@
 //  Created by Guillermo Lira on 01/10/25.
 //
 
-
 import Foundation
 import MapKit
 import CoreLocation
@@ -78,21 +77,41 @@ final class PlotsMapViewModel: NSObject, ObservableObject, CLLocationManagerDele
         let m = CLLocationManager()
         m.delegate = self
         m.desiredAccuracy = kCLLocationAccuracyBest
-        // Si ya está determinado, no pedimos otra vez
+
         switch m.authorizationStatus {
-        case .notDetermined: m.requestWhenInUseAuthorization()
-        case .authorizedWhenInUse, .authorizedAlways: m.startUpdatingLocation()
-        case .denied, .restricted: break
-        @unknown default: break
+        case .notDetermined:
+            m.requestWhenInUseAuthorization()
+
+        case .authorizedWhenInUse, .authorizedAlways:
+            m.startUpdatingLocation()
+            m.requestLocation() // lectura rápida inicial
+
+        case .denied, .restricted:
+            break
+
+        @unknown default:
+            break
         }
         self.manager = m
     }
 
+    // iOS 14+: se llama cuando cambia la autorización
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        switch manager.authorizationStatus {
+        handleAuthorization(manager.authorizationStatus, manager: manager)
+    }
+
+    // iOS 13 y anteriores (o compatibilidad): también lo soportamos
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        handleAuthorization(status, manager: manager)
+    }
+
+    private func handleAuthorization(_ status: CLAuthorizationStatus, manager: CLLocationManager) {
+        switch status {
         case .authorizedWhenInUse, .authorizedAlways:
             manager.startUpdatingLocation()
-        default: break
+            manager.requestLocation() // lectura rápida cuando se autoriza
+        default:
+            break
         }
     }
 
