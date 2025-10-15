@@ -8,54 +8,57 @@ import CoreML
 import Vision
 
 struct DetectaView: View {
+    @Environment(\.dismiss) var dismiss      // ✅ para regresar al Home directamente
     @EnvironmentObject var historyStore: HistoryStore
+    
     private let capturesService = CapturesService()
-    @State private var prediction: String = "Apunta la cámara a una hoja ☕️🍃"
+    
+    @State private var prediction: String = ""
     @State private var capturedImage: UIImage?
-    @State private var showCamera = true
+    @State private var showCamera = true     // arranca directamente en cámara
     @State private var takePhotoTrigger = false
     @State private var showSaveOptions = false
 
     var body: some View {
-        VStack(spacing: 20) {
+        ZStack {
             if let image = capturedImage {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxHeight: 250)
-                    .cornerRadius(12)
+                VStack(spacing: 20) {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxHeight: 250)
+                        .cornerRadius(12)
 
-                Text(prediction)
-                    .font(.title2)
-                    .padding()
+                    Text(prediction)
+                        .font(.title2)
+                        .padding()
 
-                if showSaveOptions {
-                    HStack(spacing: 40) {
-                        Button("❌ Rechazar") {
-                            capturedImage = nil
-                            prediction = "Apunta la cámara a una hoja ☕️🍃"
-                            showSaveOptions = false
-                            showCamera = true
-                        }
-                        .foregroundColor(.red)
-
-                        Button("✅ Aceptar") {
-                            Task {
-                                await saveAcceptedCapture()
+                    if showSaveOptions {
+                        HStack(spacing: 40) {
+                            Button("❌ Rechazar") {
+                                capturedImage = nil
+                                prediction = ""
+                                showSaveOptions = false
+                                showCamera = true
                             }
+                            .foregroundColor(.red)
+
+                            Button("✅ Aceptar") {
+                                Task {
+                                    await saveAcceptedCapture()
+                                }
+                            }
+                            .foregroundColor(.green)
                         }
-                        .foregroundColor(.green)
                     }
                 }
-            } else {
-                Text(prediction)
-                    .font(.title2)
-                    .padding()
+                .padding()
             }
         }
-        .padding()
+        // cámara en pantalla completa
         .fullScreenCover(isPresented: $showCamera) {
             ZStack {
+                // vista de cámara
                 CameraPreview(takePhotoTrigger: $takePhotoTrigger) { image in
                     self.capturedImage = image
                     self.classify(image: image)
@@ -64,8 +67,26 @@ struct DetectaView: View {
                 }
                 .ignoresSafeArea()
 
+                // botones superpuestos
                 VStack {
+                    HStack {
+                        // 🔙 Flecha para regresar al Home
+                        Button(action: {
+                            dismiss()  // ✅ cierra DetectaView completamente
+                        }) {
+                            Image(systemName: "chevron.left.circle.fill")
+                                .font(.system(size: 32))
+                                .foregroundColor(.white)
+                                .shadow(radius: 4)
+                                .padding(.leading, 20)
+                                .padding(.top, 20)
+                        }
+                        Spacer()
+                    }
+
                     Spacer()
+
+                    // botón de captura
                     Button(action: { takePhotoTrigger = true }) {
                         Circle()
                             .fill(Color.white)
@@ -78,7 +99,7 @@ struct DetectaView: View {
         }
     }
 
-    // Clasificación con CoreML
+    // MARK: - Clasificación con CoreML
     func classify(image: UIImage) {
         let config = MLModelConfiguration()
         guard let model = try? VNCoreMLModel(for: KafeCamCM(configuration: config).model) else {
@@ -111,18 +132,11 @@ struct DetectaView: View {
         }
     }
 
-    // Guarda en Supabase: usa (o crea) un plot por defecto y registra la captura
+    // MARK: - Guardado local (sin Supabase)
     private func saveAcceptedCapture() async {
-        guard let img = capturedImage, let data = img.jpegData(compressionQuality: 0.9) else { return }
-        do {
-            _ = try await capturesService.saveCaptureToDefaultPlot(imageData: data, takenAt: Date(), deviceModel: UIDevice.current.model)
-            // Mantén UX local actual
-            historyStore.add(image: img, prediction: prediction)
-            showSaveOptions = false
-        } catch {
-            // feedback mínimo
-            prediction = "⚠️ No se pudo guardar la foto"
-        }
+        guard let img = capturedImage else { return }
+        historyStore.add(image: img, prediction: prediction)
+        showSaveOptions = false
     }
 }
 
