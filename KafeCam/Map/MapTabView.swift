@@ -11,6 +11,7 @@ import MapKit
 struct MapTabView: View {
     @StateObject private var vm = PlotsMapViewModel()
     @State private var showHint = false
+    @State private var hintText = "📍 Pin agregado"
 
     var body: some View {
         NavigationStack {
@@ -36,12 +37,11 @@ struct MapTabView: View {
                     }
                     .ignoresSafeArea()
 
-                    // Overlay SOLO cuando vamos a colocar un pin
+                    // Overlay SOLO cuando vamos a colocar un pin manual
                     if vm.isAddingPin {
                         Color.clear
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .contentShape(Rectangle())
-                            // Capturamos el toque antes que el Map
                             .highPriorityGesture(
                                 DragGesture(minimumDistance: 0)
                                     .onChanged { value in
@@ -49,10 +49,7 @@ struct MapTabView: View {
                                         let pt = value.location
                                         let coord = toCoordinate(point: pt, in: geo.size, region: vm.region)
                                         vm.addPin(at: coord)
-                                        withAnimation { showHint = true }
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
-                                            withAnimation { showHint = false }
-                                        }
+                                        showTemporaryHint("📍 Pin agregado")
                                     }
                             )
                     }
@@ -89,11 +86,11 @@ struct MapTabView: View {
                     .frame(maxWidth: .infinity, alignment: .trailing)
                     .zIndex(2)
 
-                    // Hint "pin agregado"
+                    // Hint flotante
                     if showHint {
                         VStack {
                             Spacer()
-                            Text("📍 Pin agregado")
+                            Text(hintText)
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 10)
                                 .background(.ultraThinMaterial)
@@ -105,7 +102,7 @@ struct MapTabView: View {
                         .zIndex(3)
                     }
 
-                    // Instrucción
+                    // Instrucción para modo agregar pin
                     if vm.isAddingPin {
                         VStack {
                             Text("Toca el mapa para colocar el pin")
@@ -130,10 +127,17 @@ struct MapTabView: View {
                     onDelete: { vm.removePin($0) }
                 )
             }
+            // 🔔 Hints desde Detecta (éxito / fallo)
+            .onReceive(NotificationCenter.default.publisher(for: .kafePinAdded)) { _ in
+                showTemporaryHint("📍 Pin agregado automáticamente")
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .kafePinAddFailedNoLocation)) { _ in
+                showTemporaryHint("⚠️ No se pudo obtener tu ubicación")
+            }
         }
     }
 
-    // Binding real al pin dentro del array del VM
+    // MARK: - Binding real al pin dentro del array del VM
     private func binding(for pin: MapPlotPin) -> Binding<MapPlotPin> {
         guard let idx = vm.pins.firstIndex(where: { $0.id == pin.id }) else {
             fatalError("Pin no encontrado")
@@ -160,16 +164,20 @@ struct MapTabView: View {
         }
     }
 
+    private func showTemporaryHint(_ text: String) {
+        hintText = text
+        withAnimation { showHint = true }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            withAnimation { showHint = false }
+        }
+    }
+
     /// Conversión aproximada punto (en la vista) → coordenada usando la región visible
     private func toCoordinate(point: CGPoint, in size: CGSize, region: MKCoordinateRegion) -> CLLocationCoordinate2D {
-        // Nota: es una aproximación lineal (Mercator no es lineal), pero funciona bien para colocar pines.
         let latDelta = region.span.latitudeDelta
         let lonDelta = region.span.longitudeDelta
-
-        // Normalizamos punto respecto al centro de la vista
         let dx = (point.x - size.width  / 2.0) / size.width
         let dy = (size.height / 2.0 - point.y) / size.height
-
         let lat = region.center.latitude  + Double(dy) * latDelta
         let lon = region.center.longitude + Double(dx) * lonDelta
         return CLLocationCoordinate2D(latitude: lat, longitude: lon)
