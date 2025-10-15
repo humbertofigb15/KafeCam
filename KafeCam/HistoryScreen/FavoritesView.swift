@@ -1,10 +1,3 @@
-//
-//  FavoritesView.swift
-//  KafeCam
-//
-//  Created by Humberto Figueroa on 13/10/25.
-//
-
 import SwiftUI
 
 struct FavoritesView: View {
@@ -19,7 +12,7 @@ struct FavoritesView: View {
                     .foregroundColor(accentColor)
                     .padding(.horizontal)
 
-                let favorites = historyStore.entries.filter { $0.isFavorite }
+                let favorites = historyStore.favorites
 
                 if favorites.isEmpty {
                     ContentUnavailableView(
@@ -29,9 +22,14 @@ struct FavoritesView: View {
                     )
                 } else {
                     List(favorites) { entry in
-                        HistoryRow(entry: entry)
-                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 12, trailing: 16))
-                            .listRowSeparator(.hidden)
+                        NavigationLink {
+                            HistoryDetailView(entry: entry)
+                                .environmentObject(historyStore)
+                        } label: {
+                            HistoryRow(entry: entry)
+                                .environmentObject(historyStore)
+                        }
+                        .listRowSeparator(.hidden)
                     }
                     .listStyle(.plain)
                 }

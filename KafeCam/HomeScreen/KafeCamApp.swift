@@ -11,7 +11,7 @@ struct KafeCamApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            HomeView()
                 .environmentObject(historyStore)
         }
     }

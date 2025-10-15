@@ -4,6 +4,7 @@
 //
 //  Created by Grecia Saucedo on 08/09/25.
 //
+
 import SwiftUI
 import UIKit
 import MapKit
@@ -12,6 +13,7 @@ struct HomeView: View {
     @AppStorage("displayName") private var displayName: String = ""
     @AppStorage("profileInitials") private var profileInitials: String = ""
     @StateObject private var vm = HomeViewModel()
+    @EnvironmentObject var historyStore: HistoryStore   // ✅ Usa la instancia compartida
     @State private var query: String = ""
 
     // filtro simple
@@ -24,6 +26,7 @@ struct HomeView: View {
 
     var body: some View {
         TabView {
+            // INICIO
             NavigationStack {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
@@ -65,7 +68,6 @@ struct HomeView: View {
                     }
                     .padding(.horizontal)
                 }
-                // teclado
                 .scrollDismissesKeyboard(.immediately)
                 .navigationTitle("")
                 .toolbar(.hidden, for: .navigationBar)
@@ -74,12 +76,14 @@ struct HomeView: View {
             }
             .tabItem { Label("Inicio", systemImage: "house.fill") }
 
+            // MAPA
             MapTabView()
                 .tabItem { Label("Mapa", systemImage: "map.fill") }
 
+            // FAVORITOS (usa la misma instancia del store)
             FavoritesView()
                 .tabItem { Label("Favoritos", systemImage: "heart.fill") }
-                .environmentObject(HistoryStore())
+                // ❌ ya no creamos un nuevo HistoryStore aquí
         }
         .tint(vm.accentColor)
     }
@@ -87,26 +91,23 @@ struct HomeView: View {
     // sincroniza nombre e iniciales
     private func syncProfileToAppStorage() async {
         do {
-            // Log session info for diagnostics
             let userId = try await SupaAuthService.currentUserId()
             let loginCode = try? await SupaAuthService.currentLoginCode()
             print("[HomeView] Session User ID: \(userId)")
             print("[HomeView] Login Code: \(loginCode ?? "none")")
-            
+
             let repo = ProfilesRepository()
             let p = try await repo.getOrCreateCurrent()
-            
+
             print("[HomeView] Profile loaded - Name: \(p.name ?? "nil"), Phone: \(p.phone ?? "nil"), Email: \(p.email ?? "nil")")
-            
-            // Extract first name for greeting
+
             let fullName = p.name ?? ""
             let firstName = fullName.split(whereSeparator: { $0.isWhitespace }).first.map(String.init) ?? fullName
-            
-            // Update AppStorage
+
             UserDefaults.standard.set(firstName, forKey: "displayName")
             let initials = Self.makeInitials(from: fullName)
             UserDefaults.standard.set(initials, forKey: "profileInitials")
-            
+
             print("[HomeView] Display Name set to: \(firstName)")
             print("[HomeView] Initials set to: \(initials)")
         } catch {
@@ -279,4 +280,6 @@ private struct MapSectionView: View {
 
 #Preview {
     HomeView()
+        .environmentObject(HistoryStore()) // ✅ para vista previa en Xcode
 }
+
