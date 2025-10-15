@@ -8,14 +8,12 @@ import CoreML
 import Vision
 
 struct DetectaView: View {
-    @Environment(\.dismiss) var dismiss      // ✅ para regresar al Home directamente
+    @Environment(\.dismiss) var dismiss
     @EnvironmentObject var historyStore: HistoryStore
-    
-    private let capturesService = CapturesService()
     
     @State private var prediction: String = ""
     @State private var capturedImage: UIImage?
-    @State private var showCamera = true     // arranca directamente en cámara
+    @State private var showCamera = true
     @State private var takePhotoTrigger = false
     @State private var showSaveOptions = false
 
@@ -31,6 +29,7 @@ struct DetectaView: View {
 
                     Text(prediction)
                         .font(.title2)
+                        .multilineTextAlignment(.center)
                         .padding()
 
                     if showSaveOptions {
@@ -44,9 +43,8 @@ struct DetectaView: View {
                             .foregroundColor(.red)
 
                             Button("✅ Aceptar") {
-                                Task {
-                                    await saveAcceptedCapture()
-                                }
+                                historyStore.add(image: image, prediction: prediction)
+                                showSaveOptions = false
                             }
                             .foregroundColor(.green)
                         }
@@ -55,10 +53,9 @@ struct DetectaView: View {
                 .padding()
             }
         }
-        // cámara en pantalla completa
         .fullScreenCover(isPresented: $showCamera) {
             ZStack {
-                // vista de cámara
+                // Vista de cámara
                 CameraPreview(takePhotoTrigger: $takePhotoTrigger) { image in
                     self.capturedImage = image
                     self.classify(image: image)
@@ -67,12 +64,12 @@ struct DetectaView: View {
                 }
                 .ignoresSafeArea()
 
-                // botones superpuestos
+                // Botones superpuestos
                 VStack {
                     HStack {
                         // 🔙 Flecha para regresar al Home
                         Button(action: {
-                            dismiss()  // ✅ cierra DetectaView completamente
+                            dismiss()
                         }) {
                             Image(systemName: "chevron.left.circle.fill")
                                 .font(.system(size: 32))
@@ -86,7 +83,7 @@ struct DetectaView: View {
 
                     Spacer()
 
-                    // botón de captura
+                    // Botón de captura
                     Button(action: { takePhotoTrigger = true }) {
                         Circle()
                             .fill(Color.white)
@@ -99,7 +96,7 @@ struct DetectaView: View {
         }
     }
 
-    // MARK: - Clasificación con CoreML
+    // MARK: - Clasificación con CoreML adaptada a tu estructura
     func classify(image: UIImage) {
         let config = MLModelConfiguration()
         guard let model = try? VNCoreMLModel(for: KafeCamCM(configuration: config).model) else {
@@ -110,7 +107,29 @@ struct DetectaView: View {
         let request = VNCoreMLRequest(model: model) { request, _ in
             if let result = request.results?.first as? VNClassificationObservation {
                 DispatchQueue.main.async {
-                    prediction = "Predicción: \(result.identifier) (\(Int(result.confidence * 100))%)"
+                    let label = result.identifier.lowercased()
+                    let confidence = Int(result.confidence * 100)
+                    
+                    // Divide etiquetas tipo "roya enfermo" o "manganeso sospecha"
+                    let components = label.components(separatedBy: CharacterSet.whitespacesAndNewlines)
+                    let tipo = components.first?.capitalized ?? ""
+                    let estado = components.dropFirst().first?.capitalized ?? ""
+                    
+                    // Mostrar texto formateado según caso
+                    if tipo == "Sana" {
+                        prediction = "🌿 Planta sana (\(confidence)%)"
+                    } else {
+                        var emoji = "🦠"
+                        if estado == "Sospecha" { emoji = "⚠️" }
+                        else if estado == "Enfermo" { emoji = "🚨" }
+
+                        let descripcion = "Posible deficiencia de \(tipo.lowercased()) (\(estado.lowercased()))"
+                        prediction = "\(emoji) \(descripcion) (\(confidence)%)"
+                    }
+                }
+            } else {
+                DispatchQueue.main.async {
+                    prediction = "⚠️ No se pudo clasificar la imagen"
                 }
             }
         }
@@ -130,13 +149,6 @@ struct DetectaView: View {
                 }
             }
         }
-    }
-
-    // MARK: - Guardado local (sin Supabase)
-    private func saveAcceptedCapture() async {
-        guard let img = capturedImage else { return }
-        historyStore.add(image: img, prediction: prediction)
-        showSaveOptions = false
     }
 }
 
