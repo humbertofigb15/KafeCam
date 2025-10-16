@@ -9,7 +9,9 @@ import SwiftUI
 import MapKit
 
 struct MapTabView: View {
-    @StateObject private var vm = PlotsMapViewModel()
+    // ✅ El VM viene inyectado desde HomeView como EnvironmentObject
+    @EnvironmentObject var vm: PlotsMapViewModel
+
     @State private var showHint = false
     @State private var hintText = "📍 Pin agregado"
 
@@ -42,6 +44,7 @@ struct MapTabView: View {
                         Color.clear
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .contentShape(Rectangle())
+                            // Capturamos el toque antes que el Map
                             .highPriorityGesture(
                                 DragGesture(minimumDistance: 0)
                                     .onChanged { value in
@@ -71,9 +74,11 @@ struct MapTabView: View {
                             Button { vm.resetToBase() } label: {
                                 menuButton(icon: "house.fill", color: .orange)
                             }
+
                             Button { vm.goToUser() } label: {
                                 menuButton(icon: "location.fill", color: .red)
                             }
+
                             ForEach(Array(vm.pins.enumerated()), id: \.1.id) { idx, pin in
                                 Button { vm.goToPin(pin) } label: {
                                     menuButton(icon: "\(idx + 1).circle.fill", color: .green)
@@ -86,7 +91,7 @@ struct MapTabView: View {
                     .frame(maxWidth: .infinity, alignment: .trailing)
                     .zIndex(2)
 
-                    // Hint flotante
+                    // Hint flotante (éxito / error)
                     if showHint {
                         VStack {
                             Spacer()

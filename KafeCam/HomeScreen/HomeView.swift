@@ -13,7 +13,13 @@ struct HomeView: View {
     @AppStorage("displayName") private var displayName: String = ""
     @AppStorage("profileInitials") private var profileInitials: String = ""
     @StateObject private var vm = HomeViewModel()
-    @EnvironmentObject var historyStore: HistoryStore   // ✅ Usa la instancia compartida
+
+    // ✅ Instancia global del mapa: vive todo el tiempo y escucha notificaciones
+    @StateObject private var plotsVM = PlotsMapViewModel()
+
+    // ✅ Store compartido ya viene por EnvironmentObject desde arriba
+    @EnvironmentObject var historyStore: HistoryStore
+
     @State private var query: String = ""
 
     // filtro simple
@@ -76,15 +82,16 @@ struct HomeView: View {
             }
             .tabItem { Label("Inicio", systemImage: "house.fill") }
 
-            // MAPA
+            // MAPA (usa el EnvironmentObject global)
             MapTabView()
                 .tabItem { Label("Mapa", systemImage: "map.fill") }
 
-            // FAVORITOS (usa la misma instancia del store)
+            // FAVORITOS (usa la misma instancia del store inyectado arriba)
             FavoritesView()
                 .tabItem { Label("Favoritos", systemImage: "heart.fill") }
-                // ❌ ya no creamos un nuevo HistoryStore aquí
         }
+        // ✅ Inyectamos el VM del mapa a TODO el TabView
+        .environmentObject(plotsVM)
         .tint(vm.accentColor)
     }
 
@@ -280,6 +287,7 @@ private struct MapSectionView: View {
 
 #Preview {
     HomeView()
-        .environmentObject(HistoryStore()) // ✅ para vista previa en Xcode
+        // Previews: provee stores/VMs mínimamente
+        .environmentObject(HistoryStore())
 }
 
