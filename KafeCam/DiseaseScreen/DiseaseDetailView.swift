@@ -9,7 +9,7 @@ import SwiftUI
 
 struct DiseaseDetailView: View {
     let disease: DiseaseModel
-    private let labels = ["Descripción", "Impacto", "Prevención"]
+    private let labels = ["Descripción", "Impacto", "Prevención", "Ficha"]
     private let accentColor = Color(red: 88/255, green: 129/255, blue: 87/255)
     
     @State private var selectedScreen = 0
@@ -19,14 +19,16 @@ struct DiseaseDetailView: View {
         let descriptions = [
             "\(disease.description)",
             "\(disease.impact)",
-            "\(disease.prevention)"
+            "\(disease.prevention)",
         ]
         
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 Image(disease.imageName)
                     .resizable()
-                    .scaledToFit()
+                    .scaledToFill()
+                    .frame(height: 200)
+                    .clipped()
                     .cornerRadius(16)
                 
                 VStack(alignment: .leading, spacing: 8){
