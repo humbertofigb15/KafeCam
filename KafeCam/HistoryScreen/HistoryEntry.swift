@@ -1,10 +1,3 @@
-//
-//  HistoryEntry.swift
-//  KafeCam
-//
-//  Created by Humberto Figueroa on 15/10/25.
-//
-
 import SwiftUI
 
 struct HistoryEntry: Identifiable, Hashable {
@@ -13,4 +6,15 @@ struct HistoryEntry: Identifiable, Hashable {
     let prediction: String
     let date: Date
     var isFavorite: Bool = false
+    var diseaseName: String? = nil
+    var status: PlotStatus = .sano
+    var notes: String = ""
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    static func == (lhs: HistoryEntry, rhs: HistoryEntry) -> Bool {
+        lhs.id == rhs.id
+    }
 }

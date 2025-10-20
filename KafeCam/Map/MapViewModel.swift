@@ -1,21 +1,6 @@
-//
-//  MapModel.swift
-//  KafeCam
-//
-//  Created by Guillermo Lira on 01/10/25.
-//
-
 import Foundation
 import MapKit
 import CoreLocation
-
-// Estatus del plantío
-enum PlotStatus: String, CaseIterable, Identifiable {
-    case sano = "Sano"
-    case sospecha = "Sospecha"
-    case enfermo = "Enfermo"
-    var id: String { rawValue }
-}
 
 // Pin con metadatos
 struct MapPlotPin: Identifiable, Equatable {
@@ -198,9 +183,6 @@ final class PlotsMapViewModel: NSObject, ObservableObject, CLLocationManagerDele
         )
         pins.append(newPin)
 
-        // (Opcional) Enfocar región al nuevo pin:
-        // region = MKCoordinateRegion(center: coord, span: .init(latitudeDelta: 0.03, longitudeDelta: 0.03))
-
         NotificationCenter.default.post(name: .kafePinAdded, object: nil)
     }
 
@@ -231,8 +213,7 @@ final class PlotsMapViewModel: NSObject, ObservableObject, CLLocationManagerDele
     }
 }
 
-import Foundation
-
+// MARK: - Extension para Notification.Name
 extension Notification.Name {
     static let kafeCreatePin = Notification.Name("kafeCreatePin")
     static let kafePinAdded = Notification.Name("kafePinAdded")
