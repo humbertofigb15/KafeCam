@@ -110,7 +110,7 @@ struct DetectaView: View {
 
     func classify(image: UIImage) {
         let config = MLModelConfiguration()
-        guard let model = try? VNCoreMLModel(for: KafeCamCM(configuration: config).model) else {
+        guard let model = try? VNCoreMLModel(for: KafeCamFinal(configuration: config).model) else {
             prediction = "⚠️ Error al cargar modelo"
             return
         }
