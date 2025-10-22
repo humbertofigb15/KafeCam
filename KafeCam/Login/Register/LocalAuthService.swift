@@ -15,6 +15,13 @@ final class LocalAuthService: AuthService {
 
     func isLoggedIn() -> Bool { currentPhone != nil }
 
+    // New protocol requirement (personal fields). Locally we ignore them and reuse existing flow.
+    func register(name: String, email: String?, phone: String, password: String, organization: String,
+                  gender: String, dateOfBirth: Date, age: Int, country: String, state: String) throws {
+        try register(name: name, email: email, phone: phone, password: password, organization: organization)
+    }
+
+    // Legacy local register retained for internal reuse
     func register(name: String, email: String?, phone: String, password: String, organization: String) throws {
         guard !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw AuthError.invalidName }
         if let email = email, !email.isEmpty, !Self.validateEmail(email) { throw AuthError.invalidEmail }

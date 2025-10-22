@@ -12,6 +12,7 @@ import MapKit
 struct HomeView: View {
     @AppStorage("displayName") private var displayName: String = ""
     @AppStorage("profileInitials") private var profileInitials: String = ""
+    @AppStorage("avatarKey") private var avatarKey: String = ""
     @StateObject private var vm = HomeViewModel()
 
     // ✅ Instancia global del mapa: vive todo el tiempo y escucha notificaciones
@@ -21,6 +22,33 @@ struct HomeView: View {
     @EnvironmentObject var historyStore: HistoryStore
 
     @State private var query: String = ""
+    
+    init() {
+        // Configure liquid glass tab bar appearance immediately on init
+        let appearance = UITabBarAppearance()
+        
+        // Clear background for glass effect
+        appearance.configureWithTransparentBackground()
+        
+        // Apply ultra thin material blur
+        appearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial)
+        
+        // Very transparent tint to see through
+        appearance.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.1)
+        
+        // No shadows for clean glass look
+        appearance.shadowColor = .clear
+        appearance.shadowImage = UIImage()
+        
+        // Apply globally
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+        UITabBar.appearance().isTranslucent = true
+        
+        // Clear any background images
+        UITabBar.appearance().backgroundImage = UIImage()
+        UITabBar.appearance().shadowImage = UIImage()
+    }
 
     // filtro simple
     private var filtered: [String] {
@@ -82,6 +110,12 @@ struct HomeView: View {
             }
             .tabItem { Label("Inicio", systemImage: "house.fill") }
 
+            // COMUNIDAD
+            NavigationStack {
+                CommunityListView()
+            }
+            .tabItem { Label("Comunidad", systemImage: "person.3.fill") }
+
             // MAPA (usa el EnvironmentObject global)
             MapTabView()
                 .tabItem { Label("Mapa", systemImage: "map.fill") }
@@ -102,6 +136,12 @@ struct HomeView: View {
             let loginCode = try? await SupaAuthService.currentLoginCode()
             print("[HomeView] Session User ID: \(userId)")
             print("[HomeView] Login Code: \(loginCode ?? "none")")
+            // Clear avatar immediately on user switch
+            let last = UserDefaults.standard.string(forKey: "lastUserId")
+            if last != userId.uuidString {
+                UserDefaults.standard.set(userId.uuidString, forKey: "lastUserId")
+                NotificationCenter.default.post(name: .init("kafe.user.changed"), object: nil)
+            }
 
             let repo = ProfilesRepository()
             let p = try await repo.getOrCreateCurrent()
@@ -117,6 +157,18 @@ struct HomeView: View {
 
             print("[HomeView] Display Name set to: \(firstName)")
             print("[HomeView] Initials set to: \(initials)")
+
+            // Store avatar key so header/community can load avatar without visiting profile first
+            #if canImport(Supabase)
+            let session = try await SupaClient.shared.auth.session
+            if let key = session.user.userMetadata["avatar_key"]?.stringValue, !key.isEmpty {
+                UserDefaults.standard.set(key, forKey: "avatarKey")
+            } else {
+                // Fallback predictable key (may 404 until user uploads)
+                let fallback = "\(userId.uuidString.lowercased()).jpg"
+                UserDefaults.standard.set(fallback, forKey: "avatarKey")
+            }
+            #endif
         } catch {
             print("[HomeView] Error syncing profile: \(error)")
         }
@@ -157,7 +209,7 @@ private struct Header: View {
             NavigationLink {
                 ProfileTabView()
             } label: {
-                AvatarCircle(initials: initials)
+                HeaderAvatar(initials: initials)
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Abrir perfil")
@@ -166,18 +218,30 @@ private struct Header: View {
     }
 }
 
-private struct AvatarCircle: View {
+private struct HeaderAvatar: View {
+    @EnvironmentObject var avatarStore: AvatarStore
+    @AppStorage("avatarKey") private var avatarKey: String = ""
     let initials: String
+    @State private var image: UIImage? = nil
     var body: some View {
         ZStack {
             Circle().fill(Color(.systemGray5))
-            Text(initials.isEmpty ? "" : initials)
-                .font(.headline)
-                .foregroundStyle(.primary)
+            if let img = avatarStore.image ?? image {
+                Image(uiImage: img)
+                    .resizable()
+                    .scaledToFill()
+                    .clipShape(Circle())
+            } else {
+                Text(initials.isEmpty ? "" : initials)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+            }
         }
         .frame(width: 40, height: 40)
         .overlay(Circle().stroke(.white, lineWidth: 1))
         .shadow(radius: 3)
+        .onAppear { self.image = avatarStore.image }
+        .onChange(of: avatarStore.image) { _, img in self.image = img }
     }
 }
 

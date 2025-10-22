@@ -11,11 +11,40 @@ import Supabase
 #endif
 
 struct CapturesRepository {
-	/// TODO: This will call our team API to generate a signed URL for Storage upload.
-	/// For security, do not mint signed URLs in-app. This is a stub to compile.
-	func createSignedUploadURL(filename: String) async throws -> (objectKey: String, url: URL) {
-		throw NSError(domain: "todo", code: -1, userInfo: [NSLocalizedDescriptionKey: "TODO: Use team API to get signed upload URL"]) 
-	}
+    /// Requests a short-lived signed upload URL from the Edge Function `upload_url`.
+    /// The function runs with service role on the backend and returns a pre-signed
+    /// PUT URL for direct upload to Supabase Storage, plus the object key used.
+    ///
+    /// Expected function response shape: { signedUrl: string, token?: string, objectKey?: string }
+    /// - bucket and objectKey are determined by the function. We pass a suggested key.
+    #if canImport(Supabase)
+    private struct UploadURLResponse: Decodable { let signedUrl: String?; let signedURL: String?; let objectKey: String? }
+    #endif
+
+    /// Returns (objectKey, url) to perform a single PUT upload.
+    func createSignedUploadURL(filename: String) async throws -> (objectKey: String, url: URL) {
+        #if canImport(Supabase)
+        let userId = try await SupaAuthService.currentUserId()
+        // Suggest path inside captures bucket: <user-id>/<filename>
+        let suggestedKey = "\(userId.uuidString)/\(filename)"
+
+        // Call edge function
+        let payload: [String: String] = [
+            "objectKey": suggestedKey
+        ]
+        let data: Data = try await SupaClient.shared.functions
+            .invoke("upload_url", options: .init(body: payload))
+        let resp = try JSONDecoder().decode(UploadURLResponse.self, from: data)
+
+        guard let urlStr = resp.signedUrl ?? resp.signedURL, let url = URL(string: urlStr) else {
+            throw NSError(domain: "upload", code: -2, userInfo: [NSLocalizedDescriptionKey: "signedUrl missing from upload_url response"])
+        }
+        let key = resp.objectKey ?? suggestedKey
+        return (objectKey: key, url: url)
+        #else
+        throw NSError(domain: "supabase", code: -1)
+        #endif
+    }
 	
 	#if canImport(Supabase)
 	private struct NewCapturePayload: Encodable {
@@ -74,8 +103,29 @@ struct CapturesRepository {
             .value
         return items
     }
+    
+    /// Update notes for a capture
+    func updateNotes(captureId: UUID, notes: String?) async throws -> CaptureDTO {
+        // Create a simple encodable struct for the update
+        struct NotesUpdate: Encodable {
+            let notes: String?
+        }
+        
+        let updateData = NotesUpdate(notes: notes)
+        
+        let updated: CaptureDTO = try await SupaClient.shared
+            .from("captures")
+            .update(updateData)
+            .eq("id", value: captureId.uuidString)
+            .select()
+            .single()
+            .execute()
+            .value
+        return updated
+    }
 	#else
 	func createCapture(plotId: UUID, takenAt: Date, photoKey: String, clientUUID: UUID? = nil, deviceModel: String? = nil, checksumSha256: String? = nil, createdOfflineAt: Date? = nil) async throws -> CaptureDTO { throw NSError(domain: "supabase", code: -1) }
 	func listCaptures(uploadedBy userId: UUID) async throws -> [CaptureDTO] { [] }
+    func updateNotes(captureId: UUID, notes: String?) async throws -> CaptureDTO { throw NSError(domain: "supabase", code: -1) }
 	#endif
 }

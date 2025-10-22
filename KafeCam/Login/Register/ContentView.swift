@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var session = SessionViewModel(auth: SupabaseCodeAuthService())
+    @EnvironmentObject var session: SessionViewModel
 
     var body: some View {
         if session.isLoggedIn {
@@ -25,4 +25,4 @@ struct ContentView: View {
     }
 }
 
-#Preview { ContentView() }
+#Preview { ContentView().environmentObject(SessionViewModel(auth: SupabaseCodeAuthService())) }

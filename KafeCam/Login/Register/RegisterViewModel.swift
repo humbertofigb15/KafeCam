@@ -15,7 +15,14 @@ final class RegisterViewModel: ObservableObject {
     @Published var email: String = ""
     @Published var phone: String = ""
     @Published var password: String = ""
-    @Published var organization: String = "Kaapeh"
+    @Published var organization: String = "Káapeh"
+
+    // Personal info
+    @Published var gender: String = ""
+    @Published var dateOfBirth: Date = Date()
+    @Published var age: String = ""
+    @Published var country: String = ""
+    @Published var state: String = ""
 
     @Published var firstNameError: String? = nil
     @Published var lastNameError: String? = nil
@@ -23,6 +30,11 @@ final class RegisterViewModel: ObservableObject {
     @Published var phoneError: String? = nil
     @Published var passwordError: String? = nil
     @Published var isLoading = false
+    @Published var genderError: String? = nil
+    @Published var dobError: String? = nil
+    @Published var ageError: String? = nil
+    @Published var countryError: String? = nil
+    @Published var stateError: String? = nil
 
     let auth: AuthService
     let session: SessionViewModel           // <- NUEVO
@@ -34,6 +46,7 @@ final class RegisterViewModel: ObservableObject {
 
     func submit() -> Bool {
         firstNameError = nil; lastNameError = nil; emailError = nil; phoneError = nil; passwordError = nil
+        genderError = nil; dobError = nil; ageError = nil; countryError = nil; stateError = nil
         isLoading = true
         defer { isLoading = false }
 
@@ -42,7 +55,7 @@ final class RegisterViewModel: ObservableObject {
         }
         // Last name optional but keep for completeness; validate minimal length if provided
         if !lastName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && lastName.count < 2 {
-            lastNameError = "Apellido muy corto"; return false
+            lastNameError = "Last name is too short"; return false
         }
         if !email.isEmpty && !LocalAuthService.validateEmail(email) {
             emailError = AuthError.invalidEmail.errorDescription; return false
@@ -54,11 +67,19 @@ final class RegisterViewModel: ObservableObject {
             passwordError = AuthError.weakPassword.errorDescription; return false
         }
 
+        // Skip personal info validation for now (hidden in UI, kept for future DB)
+        let ageInt = Int(age) ?? 0
+
         do {
             let fullName = lastName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? firstName : "\(firstName) \(lastName)"
             print("[RegisterVM] Registering with Name: \(fullName), Phone: \(phone), Email: \(email.isEmpty ? "none" : email), Org: \(organization)")
             try auth.register(name: fullName, email: email.isEmpty ? nil : email,
-                              phone: phone, password: password, organization: organization)
+                              phone: phone, password: password, organization: organization,
+                              gender: gender.isEmpty ? "other" : gender,
+                              dateOfBirth: dateOfBirth,
+                              age: ageInt,
+                              country: country.isEmpty ? "" : country,
+                              state: state.isEmpty ? "" : state)
             // Do NOT auto-login; signal success so Login can show a confirmation
             UserDefaults.standard.set(true, forKey: "signupSuccess")
             print("[RegisterVM] Registration successful")

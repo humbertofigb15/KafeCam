@@ -43,7 +43,8 @@ struct HistoryRow: View {
     }
 }
 
-#Preview {
+/* Preview updated for Swift 6 macro guidance */
+#Preview("SizeThatFits", traits: .sizeThatFitsLayout) {
     HistoryRow(entry: HistoryEntry(
         image: UIImage(systemName: "photo")!,
         prediction: "Predicción: Planta sana",
@@ -52,6 +53,5 @@ struct HistoryRow: View {
     ))
     .environmentObject(HistoryStore())
     .padding()
-    .previewLayout(.sizeThatFits)
 }
 

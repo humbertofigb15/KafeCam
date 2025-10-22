@@ -9,6 +9,7 @@ struct HistoryEntry: Identifiable, Hashable {
     var diseaseName: String? = nil
     var status: PlotStatus = .sano
     var notes: String = ""
+    var captureData: CaptureDTO? = nil  // Reference to the capture from database
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)

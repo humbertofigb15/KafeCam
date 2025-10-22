@@ -18,6 +18,7 @@ struct CaptureDTO: Codable, Identifiable, Hashable {
 	let deviceModel: String?
 	let checksumSha256: String?
 	let createdAt: Date?
+	var notes: String?  // Made var so we can update it
 	
 	enum CodingKeys: String, CodingKey {
 		case id
@@ -30,5 +31,6 @@ struct CaptureDTO: Codable, Identifiable, Hashable {
 		case deviceModel = "device_model"
 		case checksumSha256 = "checksum_sha256"
 		case createdAt = "created_at"
+		case notes
 	}
 }

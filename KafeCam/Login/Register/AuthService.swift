@@ -9,8 +9,9 @@
 import Foundation
 
 protocol AuthService {
-    // registration now includes name, optional email, fixed organization
-    func register(name: String, email: String?, phone: String, password: String, organization: String) throws
+    // registration now includes name, optional email, fixed organization and personal info
+    func register(name: String, email: String?, phone: String, password: String, organization: String,
+                  gender: String, dateOfBirth: Date, age: Int, country: String, state: String) throws
     func login(phone: String, password: String) throws
     func logout()
     func isLoggedIn() -> Bool

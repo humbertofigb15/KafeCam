@@ -11,10 +11,12 @@ final class SupabaseCodeAuthService: AuthService {
 	private(set) var currentPhone: String? = nil
 	
 	func isLoggedIn() -> Bool {
-		currentPhone != nil
+		let flag = UserDefaults.standard.bool(forKey: "kafe.isLoggedIn")
+		return flag || (currentPhone != nil)
 	}
 	
-	func register(name: String, email: String?, phone: String, password: String, organization: String) throws {
+    func register(name: String, email: String?, phone: String, password: String, organization: String,
+                  gender: String, dateOfBirth: Date, age: Int, country: String, state: String) throws {
 		guard Self.validateCode(phone) else { throw AuthError.invalidPhone }
 		print("[SupabaseAuth] Starting registration for phone: \(phone)")
 		_ = try Self.blocking {
@@ -24,12 +26,17 @@ final class SupabaseCodeAuthService: AuthService {
 			// Ensure profile is properly synced
 			do {
 				let profiles = ProfilesRepository()
-				let profile = try await profiles.upsertCurrentUserProfile(
-					name: name,
-					email: (email?.isEmpty == true ? nil : email),
-					phone: phone,
-					organization: organization
-				)
+                let profile = try await profiles.upsertCurrentUserProfile(
+                    name: name,
+                    email: (email?.isEmpty == true ? nil : email),
+                    phone: phone,
+                    organization: organization,
+                    gender: gender,
+                    dateOfBirth: dateOfBirth,
+                    age: age,
+                    country: country,
+                    state: state
+                )
 				print("[SupabaseAuth] Profile synced - Name: \(profile.name ?? "nil"), Phone: \(profile.phone ?? "nil")")
 				
 				// Update display name
@@ -38,11 +45,14 @@ final class SupabaseCodeAuthService: AuthService {
 					UserDefaults.standard.set(first, forKey: "displayName")
 					print("[SupabaseAuth] Display name set to: \(first)")
 				}
+				// Also ensure auth metadata reflects profile values for proper display in Supabase Auth UI
+				try? await SupaAuthService.updateAuthMetadata(name: name, phone: phone, email: (email?.isEmpty == true ? nil : email), organization: organization, locale: "es")
 			} catch {
 				print("[SupabaseAuth] Profile sync after signup failed: \(error)")
 			}
 		}
 		currentPhone = phone
+		UserDefaults.standard.set(true, forKey: "kafe.isLoggedIn")
 	}
 	
 	func login(phone: String, password: String) throws {
@@ -63,16 +73,20 @@ final class SupabaseCodeAuthService: AuthService {
 					UserDefaults.standard.set(first, forKey: "displayName")
 					print("[SupabaseAuth] Display name refreshed to: \(first)")
 				}
+				// Keep auth metadata in sync on login as well
+				try? await SupaAuthService.updateAuthMetadata(name: me.name, phone: me.phone, email: me.email, organization: me.organization, locale: me.locale ?? "es")
 			} catch {
 				print("[SupabaseAuth] Profile sync after login failed: \(error)")
 			}
 		}
 		currentPhone = phone
+		UserDefaults.standard.set(true, forKey: "kafe.isLoggedIn")
 	}
 	
 	func logout() {
 		_ = try? Self.blocking { try await SupaAuthService.signOut() }
 		currentPhone = nil
+		UserDefaults.standard.set(false, forKey: "kafe.isLoggedIn")
 	}
 	
 	// MARK: - Helpers

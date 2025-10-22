@@ -34,14 +34,9 @@ enum SupaAuthService {
 	@discardableResult
 	static func signInOrSignUp(code: String, password: String) async throws -> UUID {
 		let emailAddr = "\(code)@kafe.local"
-		do {
-			let session = try await SupaClient.shared.auth.signIn(email: emailAddr, password: password)
-			return session.user.id
-		} catch {
-			_ = try await SupaClient.shared.auth.signUp(email: emailAddr, password: password)
-			let session = try await SupaClient.shared.auth.signIn(email: emailAddr, password: password)
-			return session.user.id
-		}
+		// Only allow login for existing users, don't auto-create
+		let session = try await SupaClient.shared.auth.signIn(email: emailAddr, password: password)
+		return session.user.id
 	}
 	
 	@discardableResult
@@ -82,6 +77,25 @@ enum SupaAuthService {
 			let email = try await SupaClient.shared.auth.session.user.email ?? ""
 			let code = email.split(separator: "@").first.map(String.init) ?? ""
 			return code
+		}
+
+		/// Updates auth user metadata (name/phone/email/organization/locale)
+		static func updateAuthMetadata(name: String?, phone: String?, email: String?, organization: String?, locale: String?) async throws {
+			var metadata: [String: AnyJSON] = [:]
+			if let name, !name.isEmpty { metadata["name"] = .string(name) }
+			if let phone, !phone.isEmpty { metadata["phone"] = .string(phone) }
+			if let organization, !organization.isEmpty { metadata["organization"] = .string(organization) }
+			if let locale, !locale.isEmpty { metadata["locale"] = .string(locale) }
+			if let email, !email.isEmpty { metadata["email"] = .string(email) }
+
+			let attrs = UserAttributes(data: metadata.isEmpty ? nil : metadata)
+			_ = try await SupaClient.shared.auth.update(user: attrs)
+		}
+
+		/// Updates the avatar_key metadata in auth.user
+		static func updateAuthAvatar(avatarKey: String) async throws {
+			let attrs = UserAttributes(data: ["avatar_key": .string(avatarKey)])
+			_ = try await SupaClient.shared.auth.update(user: attrs)
 		}
 	#else
 	static func signInDev() async throws { }

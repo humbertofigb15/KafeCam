@@ -1,5 +1,5 @@
 //
-// FarmersListView.swift
+// CaficultoresListView.swift
 // KafeCam
 //
 // Created by Jose Manuel Sanchez on 28/09/25
@@ -48,7 +48,7 @@ struct FarmersListView: View {
             }
         }
         .overlay { if vm.isLoading { ProgressView() } }
-        .navigationTitle("Farmers")
+        .navigationTitle("Caficultores")
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 if vm.isEditing {

@@ -1,5 +1,5 @@
 //
-// FarmersListViewModel.swift
+// CaficultoresListViewModel.swift
 // KafeCam
 //
 // Created by Jose Manuel Sanchez on 28/09/25

@@ -35,13 +35,18 @@ final class LoginViewModel: ObservableObject {
         isLoading = true
         defer { isLoading = false }
 
-        // Validate
-        guard LocalAuthService.validatePhone(phone) else {
-            phoneError = AuthError.invalidPhone.errorDescription
+        // Validaciones específicas antes de intentar login
+        let trimmedPhone = phone.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmedPhone.isEmpty {
+            phoneError = "Ingresa tu teléfono."
             return
         }
-        guard !password.isEmpty else {
-            passwordError = "Password cannot be empty."
+        if !LocalAuthService.validatePhone(trimmedPhone) {
+            phoneError = "Ingresa un teléfono válido de 10 dígitos."
+            return
+        }
+        if password.isEmpty {
+            passwordError = "Ingresa tu contraseña."
             return
         }
 
@@ -50,8 +55,8 @@ final class LoginViewModel: ObservableObject {
             try auth.login(phone: phone, password: password)
             session.isLoggedIn = true
         } catch {
-            // generic on purpose
-            passwordError = AuthError.userNotFoundOrBadPassword.errorDescription
+            // Mensaje genérico en español si credenciales no coinciden
+            passwordError = "Teléfono o contraseña incorrectos."
         }
     }
 }

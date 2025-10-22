@@ -55,7 +55,7 @@ BEGIN
       COALESCE(
         new.raw_user_meta_data->>'organization',
         new.raw_user_meta_data->>'org',
-        'Kaapeh'
+        'Káapeh'
       ),
       COALESCE(
         new.raw_user_meta_data->>'role',
@@ -137,7 +137,7 @@ BEGIN
     organization = COALESCE(
       NULLIF(organization, ''),
       user_record.raw_user_meta_data->>'organization',
-      'Kaapeh'
+      'Káapeh'
     )
   WHERE id = user_id;
 END;

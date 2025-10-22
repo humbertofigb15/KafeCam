@@ -68,9 +68,34 @@ struct PlotsRepository {
 			.value
 		return inserted
 	}
+	
+	/// Get a specific plot by ID
+	func get(byId id: UUID) async throws -> PlotDTO? {
+		let plots: [PlotDTO] = try await SupaClient.shared
+			.from("plots")
+			.select()
+			.eq("id", value: id.uuidString)
+			.execute()
+			.value
+		return plots.first
+	}
+	
+	/// List plots for a specific owner with limit
+	func listPlots(ownerId: UUID, limit: Int) async throws -> [PlotDTO] {
+		let list: [PlotDTO] = try await SupaClient.shared
+			.from("plots")
+			.select()
+			.eq("owner_user_id", value: ownerId.uuidString)
+			.limit(limit)
+			.execute()
+			.value
+		return list
+	}
 	#else
 	func listPlots() async throws -> [PlotDTO] { [] }
 	func listPlots(ownerUserId: UUID) async throws -> [PlotDTO] { [] }
 	func createPlot(name: String, lat: Double?, lon: Double?, region: String?) async throws -> PlotDTO { throw NSError(domain: "supabase", code: -1) }
+	func get(byId id: UUID) async throws -> PlotDTO? { nil }
+	func listPlots(ownerId: UUID, limit: Int) async throws -> [PlotDTO] { [] }
 	#endif
 }
