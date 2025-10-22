@@ -14,8 +14,22 @@ let brown2 = Color(red: 166/255, green: 138/255, blue: 100/255)
 struct ActionCardView: View {
     var color: Color
     var systemImage: String
-    var title: String
-    var subtitle: String
+    var title: LocalizedStringKey
+    var subtitle: LocalizedStringKey
+
+    // 🔁 Compatibilidad: si en algún lugar aún pasas String, compila igual.
+    init(color: Color, systemImage: String, title: LocalizedStringKey, subtitle: LocalizedStringKey) {
+        self.color = color
+        self.systemImage = systemImage
+        self.title = title
+        self.subtitle = subtitle
+    }
+    init(color: Color, systemImage: String, title: String, subtitle: String) {
+        self.init(color: color,
+                  systemImage: systemImage,
+                  title: LocalizedStringKey(title),
+                  subtitle: LocalizedStringKey(subtitle))
+    }
     
     var body: some View {
         VStack(spacing: 8) {
@@ -24,12 +38,12 @@ struct ActionCardView: View {
                 .foregroundColor(.white)
                 .padding(.top, 20)
             
-            Text(title)
+            Text(title)                // ← ahora sí busca en .strings
                 .font(.title3)
                 .fontWeight(.semibold)
                 .foregroundColor(.white)
             
-            Text(subtitle)
+            Text(subtitle)             // ← también localizable
                 .font(.caption)
                 .foregroundColor(.white)
                 .multilineTextAlignment(.center)
@@ -46,4 +60,3 @@ struct ActionCardView: View {
 #Preview {
     HomeView()
 }
-

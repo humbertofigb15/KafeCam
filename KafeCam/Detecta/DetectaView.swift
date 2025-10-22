@@ -19,7 +19,7 @@ struct DetectaView: View {
     @State private var takePhotoTrigger = false
     @State private var showSaveOptions = false
 
-    // Guardamos datos "reales" para la notificación al mapa
+    // Datos para el pin del mapa
     @State private var lastStatus: PlotStatus = .sano
     @State private var lastConfidencePct: Double = 0.0  // 0–100
     @State private var lastDiseaseName: String = ""     // p.ej. "roya", "manganeso"
@@ -52,51 +52,40 @@ struct DetectaView: View {
                             Button("✅ Aceptar") {
                                 guard let image = capturedImage else { return }
                                 
-                                // Save locally first for immediate feedback
+                                // Guardar local para feedback inmediato
                                 historyStore.add(image: image, prediction: prediction)
-                                
                                 showSaveOptions = false
 
-                                // Upload to Supabase with proper folder structure
+                                // Subir a Supabase (si está disponible)
                                 Task {
                                     #if canImport(Supabase)
                                     do {
-                                        // Save local copy
                                         if let uid = try? await SupaAuthService.currentUserId() {
                                             _ = LocalCapturesStore.shared.save(image: image, for: uid.uuidString)
                                         }
-                                        
-                                        // Upload to Supabase with location if available
                                         if let jpeg = image.jpegData(compressionQuality: 0.85) {
                                             let svc = CapturesService()
-                                            
-                                            // Get current location if available
                                             let lat = locationManager.lastLocation?.coordinate.latitude
                                             let lon = locationManager.lastLocation?.coordinate.longitude
                                             
                                             let capture = try await svc.saveCaptureToDefaultPlot(
-                                                imageData: jpeg, 
-                                                takenAt: Date(), 
-                                                deviceModel: prediction.isEmpty ? "Foto" : prediction,  // Use full prediction string with emoji and percentage
+                                                imageData: jpeg,
+                                                takenAt: Date(),
+                                                deviceModel: prediction.isEmpty ? "Foto" : prediction,
                                                 lat: lat,
                                                 lon: lon
                                             )
-                                            print("[Detecta] Capture saved successfully to Supabase: \(capture.photoKey)")
-                                            if let lat = lat, let lon = lon {
-                                                print("[Detecta] Location saved: \(lat), \(lon)")
-                                            }
-                                            
-                                            // Refresh history to show the new capture
+                                            print("[Detecta] Capture saved: \(capture.photoKey)")
+                                            if let lat, let lon { print("[Detecta] Location: \(lat), \(lon)") }
                                             await historyStore.syncFromSupabase()
                                         }
                                     } catch {
                                         print("[Detecta] Error saving capture: \(error)")
-                                        // Local copy is still saved, so user doesn't lose the photo
                                     }
                                     #endif
                                 }
 
-                                // 3) Notificar al mapa para crear pin automático
+                                // Notificar al mapa para crear pin
                                 NotificationCenter.default.post(
                                     name: .kafeCreatePin,
                                     object: nil,
@@ -108,7 +97,7 @@ struct DetectaView: View {
                                     ]
                                 )
 
-                                // 4) Volver al Home
+                                // Volver al Home
                                 dismiss()
                             }
                             .foregroundColor(.green)
@@ -129,10 +118,9 @@ struct DetectaView: View {
                 }
                 .ignoresSafeArea()
 
-                // Botones superpuestos
+                // Controles
                 VStack {
                     HStack {
-                        // 🔙 Flecha para regresar al Home
                         Button(action: { dismiss() }) {
                             Image(systemName: "chevron.left.circle.fill")
                                 .font(.system(size: 32))
@@ -146,7 +134,6 @@ struct DetectaView: View {
 
                     Spacer()
 
-                    // Botón de captura
                     Button(action: { takePhotoTrigger = true }) {
                         Circle()
                             .fill(Color.white)
@@ -159,120 +146,103 @@ struct DetectaView: View {
         }
     }
 
-    // MARK: - Clasificación con CoreML (modelo devuelve e.g. "roya enfermo" | "manganeso sospecha" | "sana")
+    // MARK: - Clasificación con CoreML
     func classify(image: UIImage) {
         let config = MLModelConfiguration()
-        // Try to load the model using the generated class first, then fallback to bundle
+
+        // 1) Cargar el modelo (clase generada o .mlmodelc en bundle)
         let vnModel: VNCoreMLModel
         do {
-            // First try: Load compiled model directly from bundle
-            if let url = Bundle.main.url(forResource: "KafeCamCM", withExtension: "mlmodelc") {
-                let coreMLModel = try MLModel(contentsOf: url, configuration: config)
-                vnModel = try VNCoreMLModel(for: coreMLModel)
+            if let compiledURL = Bundle.main.url(forResource: "KafeCamFinal", withExtension: "mlmodelc") {
+                // Cambia "KafeCamFinal" si tu .mlmodelc tiene otro nombre (sin espacios)
+                let coreML = try MLModel(contentsOf: compiledURL, configuration: config)
+                vnModel = try VNCoreMLModel(for: coreML)
             } else {
-                // Fallback: Try to find any .mlmodelc in bundle
-                let bundle = Bundle.main
-                if let modelURL = bundle.urls(forResourcesWithExtension: "mlmodelc", subdirectory: nil)?.first {
-                    let coreMLModel = try MLModel(contentsOf: modelURL, configuration: config)
-                    vnModel = try VNCoreMLModel(for: coreMLModel)
-                } else {
-                    prediction = "⚠️ Error al cargar modelo"
-                    return
-                }
+                // Clase generada por Xcode a partir de KafeCamFinal.mlmodel
+                vnModel = try VNCoreMLModel(for: KafeCamFinal(configuration: config).model)
             }
         } catch {
             prediction = "⚠️ Error al cargar modelo: \(error.localizedDescription)"
             return
         }
 
-        let request = VNCoreMLRequest(model: vnModel) { request, _ in
-            if let result = request.results?.first as? VNClassificationObservation {
+        // 2) Request (sin [weak self]; DetectaView es struct)
+        let request = VNCoreMLRequest(model: vnModel) { req, _ in
+            if let result = req.results?.first as? VNClassificationObservation {
                 let label = result.identifier.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
                 let confidence = Double(result.confidence * 100.0)
 
-                // Parse robusto del label
                 let parsed = parseStatus(from: label)
-                let status = parsed.status              // .sano | .sospecha | .enfermo
-                let diseaseName = parsed.diseaseName    // "" si no aplica
+                let status = parsed.status
+                let diseaseName = parsed.diseaseName
 
                 DispatchQueue.main.async {
-                    // Guardar para la notificación
                     self.lastStatus = status
                     self.lastConfidencePct = confidence
                     self.lastDiseaseName = diseaseName
 
-                    // Texto de UI
                     switch status {
                     case .sano:
                         self.prediction = "🌿 Planta sana (\(Int(confidence))%)"
                     case .sospecha:
-                        if diseaseName.isEmpty {
-                            self.prediction = "⚠️ Sospecha (\(Int(confidence))%)"
-                        } else {
-                            self.prediction = "⚠️ Sospecha de \(diseaseName.capitalized) (\(Int(confidence))%)"
-                        }
+                        self.prediction = diseaseName.isEmpty
+                            ? "⚠️ Sospecha (\(Int(confidence))%)"
+                            : "⚠️ Sospecha de \(diseaseName.capitalized) (\(Int(confidence))%)"
                     case .enfermo:
-                        if diseaseName.isEmpty {
-                            self.prediction = "🚨 Enfermo (\(Int(confidence))%)"
-                        } else {
-                            self.prediction = "🚨 \(diseaseName.capitalized) (\(Int(confidence))%)"
-                        }
+                        self.prediction = diseaseName.isEmpty
+                            ? "🚨 Enfermo (\(Int(confidence))%)"
+                            : "🚨 \(diseaseName.capitalized) (\(Int(confidence))%)"
                     }
                 }
             } else {
                 DispatchQueue.main.async {
-                    prediction = "⚠️ No se pudo clasificar la imagen"
+                    self.prediction = "⚠️ No se pudo clasificar la imagen"
                 }
             }
         }
 
+        // 3) Handler
         guard let ciImage = CIImage(image: image) else {
             prediction = "⚠️ Imagen inválida"
             return
         }
+        let handler = VNImageRequestHandler(ciImage: ciImage, options: [:])
 
-        let handler = VNImageRequestHandler(ciImage: ciImage)
         DispatchQueue.global(qos: .userInitiated).async {
-            do { try handler.perform([request]) }
-            catch {
+            do {
+                try handler.perform([request])
+            } catch {
                 DispatchQueue.main.async {
-                    prediction = "⚠️ Error al procesar la imagen"
+                    self.prediction = "⚠️ Error al procesar la imagen"
                 }
             }
         }
     }
-}
 
-// MARK: - Parser de label → (status, diseaseName)
-private func parseStatus(from raw: String) -> (status: PlotStatus, diseaseName: String) {
-    // Casos esperados:
-    // "sana" | "sano"
-    // "<enfermedad> sospecha"
-    // "<enfermedad> enfermo"
-    // También toleramos mayúsculas/espacios extras (ya bajamos a lowercased + trim arriba)
-    let parts = raw.split(separator: " ").map { String($0) } // ["roya", "enfermo"] o ["sana"]
+    // MARK: - Parser de label → (status, diseaseName)
+    private func parseStatus(from raw: String) -> (status: PlotStatus, diseaseName: String) {
+        // Casos: "sana/sano", "<enfermedad> sospecha", "<enfermedad> enfermo"
+        let parts = raw.split(separator: " ").map { String($0) }
 
-    if parts.count == 1 {
-        let word = parts[0]
-        if word == "sana" || word == "sano" || word == "saludable" || word == "healthy" {
-            return (.sano, "")
-        }
-        // Si el modelo manda solo el nombre de enfermedad sin estado → tratamos por probabilidad (pero aquí no la tenemos).
-        // Devolvemos sospecha por default en ese caso aislado.
-        return (.sospecha, word)
-    } else {
-        let disease = parts.dropLast().joined(separator: " ")
-        let state = parts.last ?? ""
-        switch state {
-        case "sospecha", "sospechoso", "suspected":
-            return (.sospecha, disease)
-        case "enfermo", "enfermedad", "diseased", "sick":
-            return (.enfermo, disease)
-        case "sano", "sana", "healthy":
-            return (.sano, disease)
-        default:
-            // Estado no reconocido → sospecha
-            return (.sospecha, disease)
+        if parts.count == 1 {
+            let word = parts[0]
+            if word == "sana" || word == "sano" || word == "saludable" || word == "healthy" {
+                return (.sano, "")
+            }
+            return (.sospecha, word)
+        } else {
+            let disease = parts.dropLast().joined(separator: " ")
+            let state = parts.last ?? ""
+            switch state {
+            case "sospecha", "sospechoso", "suspected":
+                return (.sospecha, disease)
+            case "enfermo", "enfermedad", "diseased", "sick":
+                return (.enfermo, disease)
+            case "sano", "sana", "healthy":
+                return (.sano, disease)
+            default:
+                return (.sospecha, disease)
+            }
         }
     }
 }
@@ -282,7 +252,7 @@ private func parseStatus(from raw: String) -> (status: PlotStatus, diseaseName: 
         .environmentObject(HistoryStore())
 }
 
-// MARK: - Simple Location Manager for capturing current location
+// MARK: - Simple Location Manager
 class SimpleLocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     private let locationManager = CLLocationManager()
     @Published var lastLocation: CLLocation?
@@ -307,8 +277,8 @@ class SimpleLocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     }
     
     func requestFreshLocation() {
-        if locationManager.authorizationStatus == .authorizedWhenInUse || 
-           locationManager.authorizationStatus == .authorizedAlways {
+        if locationManager.authorizationStatus == .authorizedWhenInUse ||
+            locationManager.authorizationStatus == .authorizedAlways {
             locationManager.requestLocation()
         }
     }

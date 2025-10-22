@@ -12,16 +12,17 @@ import Combine
 final class LanguageManager: ObservableObject {
     static let shared = LanguageManager()
 
+    // Idioma elegido por el usuario; persiste en UserDefaults
     @AppStorage("appLanguage") var appLanguage: String = "es" {
         didSet { objectWillChange.send() }
     }
 
+    // Locale que inyectaremos en la app para que lea .strings del idioma elegido
     var currentLocale: Locale {
-        // Para lookup de Bundle usamos códigos: "es", "en", "tzo"
-        Locale(identifier: appLanguage)
+        Locale(identifier: appLanguage) // "es", "en", "tzo"
     }
 
-    // Soporte para títulos/labels del picker
+    // Opciones visibles en el selector
     let supported: [(code: String, name: String)] = [
         ("es", "Español"),
         ("en", "English"),

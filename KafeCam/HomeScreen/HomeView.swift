@@ -138,6 +138,8 @@ struct HomeView: View {
         // ✅ Inyectamos el VM del mapa a TODO el TabView
         .environmentObject(plotsVM)
         .tint(vm.accentColor)
+        // 👇 LÍNEA CLAVE: hace que toda la UI use el idioma elegido en Perfil
+        .environment(\.locale, LanguageManager.shared.currentLocale)
     }
 
     // sincroniza nombre e iniciales

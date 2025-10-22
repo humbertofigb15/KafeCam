@@ -5,7 +5,6 @@
 //  Created by Guillermo Lira on 15/10/25.
 //
 
-
 import SwiftUI
 
 struct LanguageSection: View {
