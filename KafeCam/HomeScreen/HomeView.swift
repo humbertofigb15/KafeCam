@@ -22,6 +22,8 @@ struct HomeView: View {
     @EnvironmentObject var historyStore: HistoryStore
 
     @State private var query: String = ""
+    @State private var selectedDisease: DiseaseModel? = nil
+    @State private var openDiseaseDetail: Bool = false
     
     init() {
         // Configure liquid glass tab bar appearance immediately on init
@@ -50,12 +52,13 @@ struct HomeView: View {
         UITabBar.appearance().shadowImage = UIImage()
     }
 
-    // filtro simple
-    private var filtered: [String] {
+    // filtro simple (sobre la enciclopedia)
+    private var filteredDiseases: [DiseaseModel] {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return [] }
-        let hits = listaEnfermedades.filter { $0.localizedCaseInsensitiveContains(trimmed) }
-        return Array(hits.prefix(10)).map { String($0) }
+        // Filtra por nombre (ajusta si tu modelo tiene más campos como altNames/tags)
+        let hits = sampleDiseases.filter { $0.name.localizedCaseInsensitiveContains(trimmed) }
+        return Array(hits.prefix(10))
     }
 
     var body: some View {
@@ -75,7 +78,10 @@ struct HomeView: View {
                         SearchBar(text: $query)
 
                         // coincidencias
-                        MatchesList(filtered: filtered, onTap: { query = $0 })
+                        MatchesList(filtered: filteredDiseases, onTap: { disease in
+                            selectedDisease = disease
+                            openDiseaseDetail = true
+                        })
 
                         // alertas
                         if !vm.alerts.isEmpty {
@@ -107,6 +113,11 @@ struct HomeView: View {
                 .toolbar(.hidden, for: .navigationBar)
                 .onAppear { vm.refresh() }
                 .task { await syncProfileToAppStorage() }
+                .navigationDestination(isPresented: $openDiseaseDetail) {
+                    if let d = selectedDisease {
+                        DiseaseDetailView(disease: d)
+                    }
+                }
             }
             .tabItem { Label("Inicio", systemImage: "house.fill") }
 
@@ -246,19 +257,21 @@ private struct HeaderAvatar: View {
 }
 
 private struct MatchesList: View {
-    let filtered: [String]
-    let onTap: (String) -> Void
+    let filtered: [DiseaseModel]
+    let onTap: (DiseaseModel) -> Void
 
     var body: some View {
         Group {
             if !filtered.isEmpty {
                 Text("Coincidencias").font(.headline)
                 LazyVStack(alignment: .leading, spacing: 8) {
-                    ForEach(filtered, id: \.self) { item in
-                        Button { onTap(item) } label: {
+                    ForEach(filtered) { disease in
+                        Button { onTap(disease) } label: {
                             HStack(spacing: 8) {
                                 Image(systemName: "leaf.fill").foregroundStyle(.secondary)
-                                Text(item).foregroundStyle(.primary).lineLimit(1)
+                                Text(disease.name)
+                                    .foregroundStyle(.primary)
+                                    .lineLimit(1)
                                 Spacer()
                             }
                             .padding(10)
