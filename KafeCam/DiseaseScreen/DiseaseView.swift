@@ -21,7 +21,7 @@ struct DiseaseView: View {
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Enciclopedia de enfermedades")
+                Text("Enciclopedia de Enfermedades")
                     .font(.largeTitle.bold())
                     .foregroundStyle(accentColor)
                     .padding(.horizontal)
@@ -40,7 +40,7 @@ struct DiseaseView: View {
                     .padding()
                 }
             }
-            .navigationTitle("Enfermedades")
+            .navigationTitle("Infórmate")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
