@@ -1,19 +1,32 @@
+//
+//  MapModel.swift
+//  KafeCam
+//
+
 import Foundation
 import MapKit
 import CoreLocation
 
-// Pin con metadatos
+// MARK: - Estatus SOLO para el Mapa (renombrado)
+enum MapPlotStatus: String, CaseIterable, Identifiable {
+    case sano = "Sano"
+    case sospecha = "Sospecha"
+    case enfermo = "Enfermo"
+    var id: String { rawValue }
+}
+
+// MARK: - Pin
 struct MapPlotPin: Identifiable, Equatable {
     let id: UUID
     var coordinate: CLLocationCoordinate2D
     var name: String
-    var status: PlotStatus
+    var status: MapPlotStatus
     var plantedAt: Date?
 
     init(id: UUID = UUID(),
          coordinate: CLLocationCoordinate2D,
          name: String = "Plantío",
-         status: PlotStatus = .sano,
+         status: MapPlotStatus = .sano,
          plantedAt: Date? = nil) {
         self.id = id
         self.coordinate = coordinate
@@ -25,23 +38,25 @@ struct MapPlotPin: Identifiable, Equatable {
     static func == (lhs: MapPlotPin, rhs: MapPlotPin) -> Bool { lhs.id == rhs.id }
 }
 
+// MARK: - Notifications
+extension Notification.Name {
+    static let kafeCreatePin = Notification.Name("kafeCreatePin")
+    static let kafePinAdded = Notification.Name("kafePinAdded")
+    static let kafePinAddFailedNoLocation = Notification.Name("kafePinAddFailedNoLocation")
+}
+
+// MARK: - ViewModel
 @MainActor
 final class PlotsMapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
 
-    // Coordenada base (Chiapas)
+    // Base (Chiapas)
     let baseCoordinate = CLLocationCoordinate2D(latitude: 15.7846022, longitude: -92.7611756)
 
-    // Región visible
+    // Región y estado
     @Published var region: MKCoordinateRegion
-
-    // Pines y selección para sheet
     @Published var pins: [MapPlotPin] = []
     @Published var selectedPin: MapPlotPin?
-
-    // Ubicación del usuario
     @Published var userCoordinate: CLLocationCoordinate2D?
-
-    // Modo: esperando toque para colocar pin manual
     @Published var isAddingPin = false
 
     private var manager: CLLocationManager?
@@ -56,7 +71,7 @@ final class PlotsMapViewModel: NSObject, ObservableObject, CLLocationManagerDele
         startLocation()
         pins.append(MapPlotPin(coordinate: baseCoordinate, name: "Base"))
 
-        // Escuchar creación automática de pines (desde Detecta)
+        // Escuchar creación automática de pines (Detecta)
         pinCreateObserver = NotificationCenter.default.addObserver(
             forName: .kafeCreatePin,
             object: nil,
@@ -65,14 +80,14 @@ final class PlotsMapViewModel: NSObject, ObservableObject, CLLocationManagerDele
             guard let self else { return }
             let userInfo = note.userInfo ?? [:]
 
-            // 1) Si viene "estado" directo, úsalo
+            // Preferimos estado directo (string: "sano" | "sospecha" | "enfermo")
             if let estadoStr = userInfo["estado"] as? String {
                 let status = Self.status(from: estadoStr)
                 self.handleAutoPin(status: status)
                 return
             }
 
-            // 2) Respaldo por porcentaje
+            // Respaldo por porcentaje (si alguna vez llega)
             if let prob = userInfo["probabilidad"] as? Double {
                 self.handleAutoPin(probabilidad: prob)
             }
@@ -108,7 +123,6 @@ final class PlotsMapViewModel: NSObject, ObservableObject, CLLocationManagerDele
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         handleAuthorization(manager.authorizationStatus, manager: manager)
     }
-
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         handleAuthorization(status, manager: manager)
     }
@@ -124,57 +138,47 @@ final class PlotsMapViewModel: NSObject, ObservableObject, CLLocationManagerDele
     }
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let latest = locations.last else { return }
-        userCoordinate = latest.coordinate
+        userCoordinate = locations.last?.coordinate
     }
-
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("Location error: \(error.localizedDescription)")
     }
 
-    // MARK: - Acciones de mapa / pines (manual)
+    // MARK: - Acciones manuales
     func addPin(at coordinate: CLLocationCoordinate2D) {
         let newPin = MapPlotPin(coordinate: coordinate, name: "Plantío \(pins.count + 1)")
         pins.append(newPin)
         selectedPin = newPin
         isAddingPin = false
     }
-
     func updatePin(_ pin: MapPlotPin) {
-        if let idx = pins.firstIndex(where: { $0.id == pin.id }) {
-            pins[idx] = pin
-        }
+        if let idx = pins.firstIndex(where: { $0.id == pin.id }) { pins[idx] = pin }
     }
-
     func removePin(_ pin: MapPlotPin) {
         pins.removeAll { $0.id == pin.id }
         if selectedPin?.id == pin.id { selectedPin = nil }
     }
-
     func resetToBase() {
         region = MKCoordinateRegion(center: baseCoordinate,
                                     span: MKCoordinateSpan(latitudeDelta: 0.35, longitudeDelta: 0.35))
     }
-
     func goToUser() {
         guard let u = userCoordinate else { return }
         region = MKCoordinateRegion(center: u,
                                     span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05))
     }
-
     func goToPin(_ pin: MapPlotPin) {
         region = MKCoordinateRegion(center: pin.coordinate,
                                     span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05))
         selectedPin = pin
     }
 
-    // MARK: - Crear pin automático desde Detecta (por estado directo)
-    private func handleAutoPin(status: PlotStatus) {
+    // MARK: - Auto pin desde Detecta
+    private func handleAutoPin(status: MapPlotStatus) {
         guard let coord = userCoordinate else {
             NotificationCenter.default.post(name: .kafePinAddFailedNoLocation, object: nil)
             return
         }
-
         let newPin = MapPlotPin(
             coordinate: coord,
             name: "Plantío \(pins.count + 1)",
@@ -183,12 +187,14 @@ final class PlotsMapViewModel: NSObject, ObservableObject, CLLocationManagerDele
         )
         pins.append(newPin)
 
+        // (Opcional) enfocar al nuevo pin
+        // region = MKCoordinateRegion(center: coord, span: .init(latitudeDelta: 0.03, longitudeDelta: 0.03))
+
         NotificationCenter.default.post(name: .kafePinAdded, object: nil)
     }
 
-    // MARK: - Crear pin automático por porcentaje (respaldo)
     private func handleAutoPin(probabilidad: Double) {
-        let status: PlotStatus
+        let status: MapPlotStatus
         switch probabilidad {
         case 70...100: status = .enfermo
         case 40..<70:  status = .sospecha
@@ -197,25 +203,13 @@ final class PlotsMapViewModel: NSObject, ObservableObject, CLLocationManagerDele
         handleAutoPin(status: status)
     }
 
-    // MARK: - Mapear string a PlotStatus
-    private static func status(from raw: String) -> PlotStatus {
-        let s = raw.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        switch s {
-        case "enfermo", "enfermedad", "sick", "diseased":
-            return .enfermo
-        case "sospecha", "suspected", "sospechoso":
-            return .sospecha
-        case "sano", "sana", "healthy":
-            return .sano
-        default:
-            return .sospecha
+    // String → MapPlotStatus
+    private static func status(from raw: String) -> MapPlotStatus {
+        switch raw.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "enfermo", "enfermedad", "sick", "diseased": return .enfermo
+        case "sospecha", "suspected", "sospechoso":       return .sospecha
+        case "sano", "sana", "healthy":                   return .sano
+        default:                                          return .sospecha
         }
     }
-}
-
-// MARK: - Extension para Notification.Name
-extension Notification.Name {
-    static let kafeCreatePin = Notification.Name("kafeCreatePin")
-    static let kafePinAdded = Notification.Name("kafePinAdded")
-    static let kafePinAddFailedNoLocation = Notification.Name("kafePinAddFailedNoLocation")
 }

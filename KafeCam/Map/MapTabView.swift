@@ -3,13 +3,11 @@
 //  KafeCam
 //
 //  Created by Guillermo Lira on 01/10/25.
-//
 
 import SwiftUI
 import MapKit
 
 struct MapTabView: View {
-    // ✅ El VM viene inyectado desde HomeView como EnvironmentObject
     @EnvironmentObject var vm: PlotsMapViewModel
 
     @State private var showHint = false
@@ -19,7 +17,6 @@ struct MapTabView: View {
         NavigationStack {
             GeometryReader { geo in
                 ZStack {
-                    // Mapa con punto azul y pines
                     Map(
                         coordinateRegion: $vm.region,
                         interactionModes: .all,
@@ -39,29 +36,24 @@ struct MapTabView: View {
                     }
                     .ignoresSafeArea()
 
-                    // Overlay SOLO cuando vamos a colocar un pin manual
                     if vm.isAddingPin {
                         Color.clear
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .contentShape(Rectangle())
-                            // Capturamos el toque antes que el Map
                             .highPriorityGesture(
                                 DragGesture(minimumDistance: 0)
                                     .onChanged { value in
                                         guard vm.isAddingPin else { return }
-                                        let pt = value.location
-                                        let coord = toCoordinate(point: pt, in: geo.size, region: vm.region)
+                                        let coord = toCoordinate(point: value.location, in: geo.size, region: vm.region)
                                         vm.addPin(at: coord)
                                         showTemporaryHint("📍 Pin agregado")
                                     }
                             )
                     }
 
-                    // Menú vertical flotante (derecha)
                     VStack {
                         Spacer()
                         VStack(spacing: 12) {
-                            // Alterna "Agregar pin" / "Cancelar"
                             Button {
                                 vm.isAddingPin.toggle()
                             } label: {
@@ -91,7 +83,6 @@ struct MapTabView: View {
                     .frame(maxWidth: .infinity, alignment: .trailing)
                     .zIndex(2)
 
-                    // Hint flotante (éxito / error)
                     if showHint {
                         VStack {
                             Spacer()
@@ -107,7 +98,6 @@ struct MapTabView: View {
                         .zIndex(3)
                     }
 
-                    // Instrucción para modo agregar pin
                     if vm.isAddingPin {
                         VStack {
                             Text("Toca el mapa para colocar el pin")
@@ -132,7 +122,7 @@ struct MapTabView: View {
                     onDelete: { vm.removePin($0) }
                 )
             }
-            // 🔔 Hints desde Detecta (éxito / fallo)
+            // Hints desde Detecta
             .onReceive(NotificationCenter.default.publisher(for: .kafePinAdded)) { _ in
                 showTemporaryHint("📍 Pin agregado automáticamente")
             }
@@ -142,15 +132,12 @@ struct MapTabView: View {
         }
     }
 
-    // MARK: - Binding real al pin dentro del array del VM
     private func binding(for pin: MapPlotPin) -> Binding<MapPlotPin> {
         guard let idx = vm.pins.firstIndex(where: { $0.id == pin.id }) else {
             fatalError("Pin no encontrado")
         }
         return $vm.pins[idx]
     }
-
-    // MARK: - Helpers UI / Coord
 
     private func menuButton(icon: String, color: Color) -> some View {
         Image(systemName: icon)
@@ -161,7 +148,7 @@ struct MapTabView: View {
             .shadow(radius: 3)
     }
 
-    private func color(for status: PlotStatus) -> Color {
+    private func color(for status: MapPlotStatus) -> Color {
         switch status {
         case .sano:     return .green
         case .sospecha: return .yellow
@@ -177,7 +164,6 @@ struct MapTabView: View {
         }
     }
 
-    /// Conversión aproximada punto (en la vista) → coordenada usando la región visible
     private func toCoordinate(point: CGPoint, in size: CGSize, region: MKCoordinateRegion) -> CLLocationCoordinate2D {
         let latDelta = region.span.latitudeDelta
         let lonDelta = region.span.longitudeDelta
@@ -192,7 +178,6 @@ struct MapTabView: View {
 // MARK: - Sheet de detalle
 struct PinDetailSheet: View {
     @Environment(\.dismiss) private var dismiss
-
     @Binding var pin: MapPlotPin
     var onSave: (MapPlotPin) -> Void
     var onDelete: (MapPlotPin) -> Void
@@ -202,20 +187,15 @@ struct PinDetailSheet: View {
             Form {
                 Section("General") {
                     TextField("Nombre del plantío", text: $pin.name)
-
                     Picker("Estatus", selection: $pin.status) {
-                        ForEach(PlotStatus.allCases) { st in
+                        ForEach(MapPlotStatus.allCases) { st in
                             Text(st.rawValue).tag(st)
                         }
                     }
-
-                    DatePicker(
-                        "Fecha de plantación",
-                        selection: $pin.plantedAt.unwrap(Date()),
-                        displayedComponents: .date
-                    )
+                    DatePicker("Fecha de plantación",
+                               selection: $pin.plantedAt.unwrap(Date()),
+                               displayedComponents: .date)
                 }
-
                 Section {
                     Button(role: .destructive) {
                         onDelete(pin)
@@ -241,9 +221,7 @@ struct PinDetailSheet: View {
     }
 }
 
-// MARK: - Helper genérico: Binding<Optional> → Binding<Wrapped>
 extension Binding {
-    /// Convierte un Binding<T?> en Binding<T> proporcionando un valor por defecto.
     func unwrap<T>(_ defaultValue: T) -> Binding<T> where Value == T? {
         Binding<T>(
             get: { self.wrappedValue ?? defaultValue },
