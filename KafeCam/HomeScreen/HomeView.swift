@@ -147,8 +147,8 @@ struct HomeView: View {
         do {
             let userId = try await SupaAuthService.currentUserId()
             let loginCode = try? await SupaAuthService.currentLoginCode()
-            print("[HomeView] Session User ID: \(userId)")
-            print("[HomeView] Login Code: \(loginCode ?? "none")")
+            debugPrint("[HomeView] Session User ID: \(userId)")
+            debugPrint("[HomeView] Login Code: \(loginCode ?? "none")")
             // Clear avatar immediately on user switch
             let last = UserDefaults.standard.string(forKey: "lastUserId")
             if last != userId.uuidString {
@@ -159,7 +159,7 @@ struct HomeView: View {
             let repo = ProfilesRepository()
             let p = try await repo.getOrCreateCurrent()
 
-            print("[HomeView] Profile loaded - Name: \(p.name ?? "nil"), Phone: \(p.phone ?? "nil"), Email: \(p.email ?? "nil")")
+            debugPrint("[HomeView] Profile loaded - Name: \(p.name ?? "nil"), Phone: \(p.phone ?? "nil"), Email: \(p.email ?? "nil")")
 
             let fullName = p.name ?? ""
             let firstName = fullName.split(whereSeparator: { $0.isWhitespace }).first.map(String.init) ?? fullName
@@ -168,8 +168,8 @@ struct HomeView: View {
             let initials = Self.makeInitials(from: fullName)
             UserDefaults.standard.set(initials, forKey: "profileInitials")
 
-            print("[HomeView] Display Name set to: \(firstName)")
-            print("[HomeView] Initials set to: \(initials)")
+            debugPrint("[HomeView] Display Name set to: \(firstName)")
+            debugPrint("[HomeView] Initials set to: \(initials)")
 
             // Store avatar key so header/community can load avatar without visiting profile first
             #if canImport(Supabase)
@@ -183,7 +183,7 @@ struct HomeView: View {
             }
             #endif
         } catch {
-            print("[HomeView] Error syncing profile: \(error)")
+            debugPrint("[HomeView] Error syncing profile: \(error)")
         }
     }
 

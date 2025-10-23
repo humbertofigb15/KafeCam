@@ -31,10 +31,10 @@ struct CommunityListView: View {
         // Apply search query
         if !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             let lowered = query.lowercased()
-            result = result.filter { 
-                ($0.name?.lowercased().contains(lowered) == true) || 
-                ($0.email?.lowercased().contains(lowered) == true) || 
-                ($0.phone?.contains(lowered) == true) 
+            result = result.filter {
+                ($0.name?.lowercased().contains(lowered) == true) ||
+                ($0.email?.lowercased().contains(lowered) == true) ||
+                ($0.phone?.contains(lowered) == true)
             }
         }
         
@@ -57,20 +57,20 @@ struct CommunityListView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     // Default filters
-                    FilterChip(title: "Todos", selected: roleFilter.isEmpty && listsManager.selectedListId == nil) { 
+                    FilterChip(title: "Todos", selected: roleFilter.isEmpty && listsManager.selectedListId == nil) {
                         roleFilter = ""
                         listsManager.selectedListId = nil
-                        Task { await reload() } 
+                        Task { await reload() }
                     }
-                    FilterChip(title: "Caficultores", selected: roleFilter == "farmer" && listsManager.selectedListId == nil) { 
+                    FilterChip(title: "Caficultores", selected: roleFilter == "farmer" && listsManager.selectedListId == nil) {
                         roleFilter = "farmer"
                         listsManager.selectedListId = nil
-                        Task { await reload() } 
+                        Task { await reload() }
                     }
-                    FilterChip(title: "Técnicos", selected: roleFilter == "technician" && listsManager.selectedListId == nil) { 
+                    FilterChip(title: "Técnicos", selected: roleFilter == "technician" && listsManager.selectedListId == nil) {
                         roleFilter = "technician"
                         listsManager.selectedListId = nil
-                        Task { await reload() } 
+                        Task { await reload() }
                     }
                     
                     // Custom lists
@@ -208,7 +208,6 @@ struct CommunityListView: View {
                 showOnboarding = false
                 Task { await reload() }
             })
-            .interactiveDismissDisabled(true)
             .presentationDetents([.large])
         }
     }
@@ -332,9 +331,9 @@ private struct AvatarBubble: View {
                 await loadAvatar()
             }
         }
-        .onChange(of: avatarStore.image) { _, img in 
-            if isCurrentUser { 
-                self.image = img 
+        .onChange(of: avatarStore.image) { _, img in
+            if isCurrentUser {
+                self.image = img
             }
         }
     }
@@ -363,11 +362,11 @@ private struct AvatarBubble: View {
         
         for key in primaryKeys {
             if let url = try? await storage.signedDownloadURL(objectKey: key, bucket: "avatars", expiresIn: 600) {
-                if let (data, resp) = try? await URLSession.shared.data(from: url), 
-                   let http = resp as? HTTPURLResponse, 
+                if let (data, resp) = try? await URLSession.shared.data(from: url),
+                   let http = resp as? HTTPURLResponse,
                    200..<300 ~= http.statusCode {
                     if let img = Self.decodeImage(data: data, response: http) {
-                        await MainActor.run { 
+                        await MainActor.run {
                             self.image = img
                             // Cache for instant display next time
                             Self.avatarCache[userId] = img
@@ -381,7 +380,7 @@ private struct AvatarBubble: View {
         // If primary keys fail, try other extensions
         let exts = ["jpeg", "png", "heic", "pdf"]
         var keys: [String] = []
-        for ext in exts { 
+        for ext in exts {
             keys.append("\(uidLower).\(ext)")
             keys.append("\(uidLower)-avatar.\(ext)")
             keys.append("\(uidUpper).\(ext)")
@@ -390,11 +389,11 @@ private struct AvatarBubble: View {
         
         for key in keys {
             if let url = try? await storage.signedDownloadURL(objectKey: key, bucket: "avatars", expiresIn: 600) {
-                if let (data, resp) = try? await URLSession.shared.data(from: url), 
-                   let http = resp as? HTTPURLResponse, 
+                if let (data, resp) = try? await URLSession.shared.data(from: url),
+                   let http = resp as? HTTPURLResponse,
                    200..<300 ~= http.statusCode {
                     if let img = Self.decodeImage(data: data, response: http) {
-                        await MainActor.run { 
+                        await MainActor.run {
                             self.image = img
                             Self.avatarCache[userId] = img
                         }
@@ -407,7 +406,6 @@ private struct AvatarBubble: View {
     }
 
     // no-op helper removed; we rely on isCurrentUser param
-
     private static func initials(from name: String?) -> String {
         let trimmed = (name ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return "" }
@@ -435,6 +433,3 @@ private struct AvatarBubble: View {
         return nil
     }
 }
-
-
-
