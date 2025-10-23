@@ -200,10 +200,19 @@ struct CommunityListView: View {
                 if !onboardedForUser { showOnboarding = true }
             }
         }
-        .sheet(isPresented: $showOnboarding) {
+        .sheet(isPresented: $showOnboarding, onDismiss: {
+            if let uid = currentUserId {
+                let key = "community.onboarded.\(uid.uuidString)"
+                if !UserDefaults.standard.bool(forKey: key) {
+                    NotificationCenter.default.post(name: .switchToHomeTab, object: nil)
+                }
+            }
+        }) {
             CommunityOnboardingView(onComplete: {
                 if let uid = currentUserId {
-                    UserDefaults.standard.set(true, forKey: "community.onboarded.\(uid.uuidString)")
+                    let key = "community.onboarded.\(uid.uuidString)"
+                    UserDefaults.standard.set(true, forKey: key)
+                    onboardedForUser = true // Update local state
                 }
                 showOnboarding = false
                 Task { await reload() }
@@ -406,6 +415,7 @@ private struct AvatarBubble: View {
     }
 
     // no-op helper removed; we rely on isCurrentUser param
+
     private static func initials(from name: String?) -> String {
         let trimmed = (name ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return "" }

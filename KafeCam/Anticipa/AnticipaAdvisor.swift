@@ -9,7 +9,6 @@
 import Foundation
 
 // reglas simples
-
 struct AnticipaAdvisor {
     struct Output: Equatable {
         let risks: [AnticipaRisk]
@@ -58,7 +57,7 @@ struct AnticipaAdvisor {
             actions.append("Mantener claras veredas naturales.")
         }
 
-        let summary = risks.isEmpty ? "Condiciones estables." : "\(risks.count) riesgo(s) detectado(s)."
+        let summary = risks.isEmpty ? "Condiciones estables." : "\(risks.count) evento(s) detectado(s)."
         let uniqActions = Array(Set(actions)).map { AnticipaAction(text: $0) }
 
         return Output(risks: Array(risks), actions: uniqActions, summary: summary)

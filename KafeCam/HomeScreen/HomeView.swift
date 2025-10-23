@@ -9,6 +9,10 @@ import SwiftUI
 import UIKit
 import MapKit
 
+private enum AppTab {
+    case home, community, map, favorites
+}
+
 struct HomeView: View {
     @AppStorage("displayName") private var displayName: String = ""
     @AppStorage("profileInitials") private var profileInitials: String = ""
@@ -24,6 +28,8 @@ struct HomeView: View {
     @State private var query: String = ""
     @State private var selectedDisease: DiseaseModel? = nil
     @State private var openDiseaseDetail: Bool = false
+    
+    @State private var selectedTab: AppTab = .home
     
     init() {
         // Configure liquid glass tab bar appearance immediately on init
@@ -62,7 +68,7 @@ struct HomeView: View {
     }
 
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             // INICIO
             NavigationStack {
                 ScrollView {
@@ -120,26 +126,33 @@ struct HomeView: View {
                 }
             }
             .tabItem { Label("Inicio", systemImage: "house.fill") }
+            .tag(AppTab.home)
 
             // COMUNIDAD
             NavigationStack {
                 CommunityListView()
             }
             .tabItem { Label("Comunidad", systemImage: "person.3.fill") }
+            .tag(AppTab.community)
 
             // MAPA (usa el EnvironmentObject global)
             MapTabView()
                 .tabItem { Label("Mapa", systemImage: "map.fill") }
+                .tag(AppTab.map)
 
             // FAVORITOS (usa la misma instancia del store inyectado arriba)
             FavoritesView()
                 .tabItem { Label("Favoritos", systemImage: "heart.fill") }
+                .tag(AppTab.favorites)
         }
         // ✅ Inyectamos el VM del mapa a TODO el TabView
         .environmentObject(plotsVM)
         .tint(vm.accentColor)
         // 👇 LÍNEA CLAVE: hace que toda la UI use el idioma elegido en Perfil
         .environment(\.locale, LanguageManager.shared.currentLocale)
+        .onReceive(NotificationCenter.default.publisher(for: .switchToHomeTab)) { _ in
+            selectedTab = .home
+        }
     }
 
     // sincroniza nombre e iniciales
@@ -147,8 +160,10 @@ struct HomeView: View {
         do {
             let userId = try await SupaAuthService.currentUserId()
             let loginCode = try? await SupaAuthService.currentLoginCode()
+            
             debugPrint("[HomeView] Session User ID: \(userId)")
             debugPrint("[HomeView] Login Code: \(loginCode ?? "none")")
+            
             // Clear avatar immediately on user switch
             let last = UserDefaults.standard.string(forKey: "lastUserId")
             if last != userId.uuidString {
@@ -194,6 +209,10 @@ struct HomeView: View {
         let second = parts.dropFirst().first?.first.map(String.init) ?? ""
         return (first + second).uppercased()
     }
+}
+
+extension Notification.Name {
+    static let switchToHomeTab = Notification.Name("kafe.switchToHomeTab")
 }
 
 // MARK: - Subvistas
@@ -369,4 +388,3 @@ private struct MapSectionView: View {
         // Previews: provee stores/VMs mínimamente
         .environmentObject(HistoryStore())
 }
-
