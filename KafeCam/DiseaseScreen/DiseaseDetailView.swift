@@ -53,6 +53,12 @@ struct DiseaseDetailView: View {
 
                 if descriptions.indices.contains(selectedScreen) {
                     VStack(alignment: .leading, spacing: 8) {
+                        if labels[selectedScreen] == "Prevención" {
+                            Text("⚠️ Aviso - Se recomienda evitar la ingestión y el contacto directo con las sustancias mencionadas. Procura usar guantes para su manejo.")
+                                .font(.headline)
+                                .fontWeight(.bold)
+                        }
+                        
                         ForEach(descriptions[selectedScreen].split(separator: "\n"), id: \.self) { line in
                             formatText(String(line))
                         }
