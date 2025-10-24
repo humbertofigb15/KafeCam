@@ -49,7 +49,7 @@ struct DiseaseRowView: View {
     
     ScrollView {
         LazyVGrid(columns: columns, spacing: 16) {
-            ForEach(sampleDiseases) { item in
+            ForEach(diseases) { item in
                 DiseaseRowView(disease: DiseaseModel(name: item.name, scientificName: item.scientificName, description: item.description, impact: item.impact, prevention: item.prevention, imageName: item.imageName))
             }
         }

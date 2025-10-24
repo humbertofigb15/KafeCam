@@ -47,5 +47,5 @@ struct DiseaseView: View {
 }
 
 #Preview {
-    DiseaseView(diseaseList: sampleDiseases)
+    DiseaseView(diseaseList: diseases)
 }

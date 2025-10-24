@@ -102,5 +102,5 @@ struct DiseaseDetailView: View {
 
 
 #Preview {
-    DiseaseDetailView(disease: sampleDiseases[0])
+    DiseaseDetailView(disease: diseases[0])
 }

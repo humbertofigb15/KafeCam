@@ -63,7 +63,7 @@ struct HomeView: View {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return [] }
         // Filtra por nombre (ajusta si tu modelo tiene más campos como altNames/tags)
-        let hits = sampleDiseases.filter { $0.name.localizedCaseInsensitiveContains(trimmed) }
+        let hits = diseases.filter { $0.name.localizedCaseInsensitiveContains(trimmed) }
         return Array(hits.prefix(10))
     }
 
@@ -342,7 +342,7 @@ private struct ActionsGrid: View {
 
             // INFÓRMATE
             NavigationLink {
-                DiseaseView(diseaseList: sampleDiseases)
+                DiseaseView(diseaseList: diseases)
             } label: {
                 ActionCardView(color: brown2, systemImage: "bandage.fill",
                                title: "Infórmate", subtitle: "Cuida tu cultivo")
