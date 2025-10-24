@@ -15,6 +15,10 @@ struct DiseaseModel: Identifiable, Hashable, Codable {
     var impact: String
     var prevention: String
     var imageName: String
+    
+    private enum CodingKeys: String, CodingKey {
+            case name, scientificName, description, impact, prevention, imageName
+    }
 }
 
 let diseases: [DiseaseModel] = Bundle.main.decode("diseases.json")
